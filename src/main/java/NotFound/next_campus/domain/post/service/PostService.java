@@ -2,6 +2,7 @@ package NotFound.next_campus.domain.post.service;
 
 import NotFound.next_campus.domain.post.dto.request.CreatePostDTO;
 import NotFound.next_campus.domain.post.dto.request.UpdatePostDTO;
+import NotFound.next_campus.domain.post.dto.response.PostResponseDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface PostService {
@@ -17,4 +18,6 @@ public interface PostService {
     /* 게시물 삭제 */
     void deletePost(Long postId, Long memberId);
 
+    /* 게시물 조회 */
+    PostResponseDTO getPostById(Long postId);
 }

@@ -9,6 +9,7 @@ import NotFound.next_campus.domain.member.model.Role;
 import NotFound.next_campus.domain.member.repository.MemberRepository;
 import NotFound.next_campus.domain.post.dto.request.CreatePostDTO;
 import NotFound.next_campus.domain.post.dto.request.UpdatePostDTO;
+import NotFound.next_campus.domain.post.dto.response.PostResponseDTO;
 import NotFound.next_campus.domain.post.model.Post;
 import NotFound.next_campus.domain.post.model.PostCategory;
 import NotFound.next_campus.domain.post.model.PostStatus;
@@ -103,10 +104,10 @@ public class PostServiceImpl implements PostService {
     @Override
     public Long updatePost(Long postId, UpdatePostDTO dto) {
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다."));
         Member member = memberRepository.findById(dto.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다."));
 
         if (Role.USER.equals(member.getRole()) &&
                 !post.getMember().equals(member)) {
@@ -194,6 +195,19 @@ public class PostServiceImpl implements PostService {
         // postCategoryRepository.deleteByPost(post);
         // 게시물 삭제
         postRepository.delete(post);
+    }
+
+    @Override
+    public PostResponseDTO getPostById(Long postId) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다 ."));
+
+        List<String> categories = postCategoryRepository.findByPost(post).stream()
+                .map(pc -> pc.getCategory().getName())
+                .toList();
+
+        return PostResponseDTO.from(post, categories);
     }
 
     private void savePostCategory(Post post, List<Long> categories) {
