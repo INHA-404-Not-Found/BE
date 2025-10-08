@@ -12,11 +12,18 @@ import NotFound.next_campus.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class PostServiceImpl implements PostService {
+
+    private final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/";
 
     private final MemberRepository memberRepository;
     private final LocationRepository locationRepository;
@@ -37,6 +44,7 @@ public class PostServiceImpl implements PostService {
                 .isPersonal(dto.getIsPersonal())
                 .build();
 
+        // 습득 게시물인 경우
         if(PostType.FIND.equals(dto.getType())) {
             // 분실물 발견 위치
             Location location = locationRepository.findById(dto.getLocationId())
@@ -47,6 +55,7 @@ public class PostServiceImpl implements PostService {
             post.setStoredLocation(dto.getStoredLocation());    // 보관장소
         }
 
+        // 공지사항인 경우
         if(PostType.NOTICE.equals(dto.getType())
                 && !Role.ADMIN.equals(member.getRole())) {
 
@@ -56,5 +65,32 @@ public class PostServiceImpl implements PostService {
         postRepository.save(post);
 
         return post.getId();
+    }
+
+    @Override
+    public void savePostImage(Long postId, MultipartFile file) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다."));
+
+        if(file.isEmpty()) {
+            throw new IllegalArgumentException("이미지가 존재하지 않습니다.");
+        }
+
+        String originalFileName = file.getOriginalFilename();
+        String storedFileName = UUID.randomUUID() + "_" + originalFileName;
+
+        String path = UPLOAD_DIR + storedFileName;
+
+        try {
+            File destination = new File(path);
+            destination.getParentFile().mkdirs();
+            file.transferTo(destination);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("파일 저장 실패");
+        }
+
+        post.setOriginalFileName(originalFileName);
+        post.setStoredFileName(storedFileName);
     }
 }
