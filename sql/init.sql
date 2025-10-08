@@ -42,7 +42,7 @@ CREATE TABLE post
     stored_file_name VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (member_id) REFERENCES member(member_id),
+    FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
     FOREIGN KEY (location_id) REFERENCES location(location_id)
 );
 
@@ -59,8 +59,8 @@ CREATE TABLE post_category
     post_category_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     post_id BIGINT NOT NULL,
     category_id BIGINT NOT NULL,
-    FOREIGN KEY (post_id) REFERENCES post(post_id),
-    FOREIGN KEY (category_id) REFERENCES category(category_id)
+    FOREIGN KEY (post_id) REFERENCES post(post_id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES category(category_id) ON DELETE CASCADE
 );
 
 DROP TABLE if EXISTS comment CASCADE;
@@ -72,8 +72,8 @@ CREATE TABLE comment
     content TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (post_id) REFERENCES post(post_id),
-    FOREIGN KEY (member_id) REFERENCES member(member_id)
+    FOREIGN KEY (post_id) REFERENCES post(post_id) ON DELETE CASCADE,
+    FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
 
 # **************************************************************************
@@ -88,7 +88,7 @@ CREATE TABLE receiver
     email VARCHAR(255) NOT NULL,
     phone_number VARCHAR(30) NOT NULL,
     student_id VARCHAR(10),
-    FOREIGN KEY (post_id) REFERENCES post(post_id)
+    FOREIGN KEY (post_id) REFERENCES post(post_id) ON DELETE CASCADE
 );
 
 # **************************************************************************
@@ -103,5 +103,5 @@ CREATE TABLE notification
     message TEXT NOT NULL,
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (member_id) REFERENCES member(member_id)
+    FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
