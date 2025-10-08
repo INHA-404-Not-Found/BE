@@ -23,6 +23,9 @@ public class Member {
     private Long studentId;
 
     @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
