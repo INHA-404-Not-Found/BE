@@ -1,5 +1,5 @@
-//**************************************************************************
-// Member
+# **************************************************************************
+# Member
 
 DROP TABLE if EXISTS member CASCADE;
 CREATE TABLE member
@@ -15,8 +15,8 @@ CREATE TABLE member
     refresh_expiry DATETIME
 );
 
-//**************************************************************************
-// Posting
+# **************************************************************************
+# Posting
 
 DROP TABLE if EXISTS location CASCADE;
 CREATE TABLE location
@@ -30,15 +30,16 @@ CREATE TABLE post
 (
     post_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     member_id BIGINT NOT NULL,
-    location_id BIGINT NOT NULL,
+    location_id BIGINT,
+    location_detail VARCHAR(255),
     title VARCHAR(255) NOT NULL,
     content TEXT,
-    stored_location VARCHAR(255) NOT NULL,
+    stored_location VARCHAR(255),
     status ENUM('UNCOMPLETED', 'COMPLETED', 'POLICE'),
     post_type ENUM('LOST', 'FIND', 'NOTICE'),
     is_personal BOOLEAN DEFAULT FALSE,
-    original_filename VARCHAR(255),
-    stored_filename VARCHAR(255),
+    original_file_name VARCHAR(255),
+    stored_file_name VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (member_id) REFERENCES member(member_id),
@@ -75,8 +76,8 @@ CREATE TABLE comment
     FOREIGN KEY (member_id) REFERENCES member(member_id)
 );
 
-//**************************************************************************
-// Receiver(수령인)
+# **************************************************************************
+# Receiver(수령인)
 
 DROP TABLE if EXISTS receiver CASCADE;
 CREATE TABLE receiver
@@ -90,8 +91,8 @@ CREATE TABLE receiver
     FOREIGN KEY (post_id) REFERENCES post(post_id)
 );
 
-//**************************************************************************
-// Notification(알림)
+# **************************************************************************
+# Notification(알림)
 
 DROP TABLE if EXISTS notification CASCADE;
 CREATE TABLE notification
