@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -19,4 +21,5 @@ public class CreatePostDTO {
     private String storedLocation;  // 보관 위치
     private PostType type;          // 게시물 유형(분실/습득/공지)
     private Boolean isPersonal;     // 개인정보 포함 여부
+    private List<Long> categories;  // 게시할 카테고리 목록
 }

@@ -1,5 +1,7 @@
 package NotFound.next_campus.domain.post.service;
 
+import NotFound.next_campus.domain.category.model.Category;
+import NotFound.next_campus.domain.category.repository.CategoryRepository;
 import NotFound.next_campus.domain.location.model.Location;
 import NotFound.next_campus.domain.location.repository.LocationRepository;
 import NotFound.next_campus.domain.member.model.Member;
@@ -7,7 +9,9 @@ import NotFound.next_campus.domain.member.model.Role;
 import NotFound.next_campus.domain.member.repository.MemberRepository;
 import NotFound.next_campus.domain.post.dto.request.CreatePostDTO;
 import NotFound.next_campus.domain.post.model.Post;
+import NotFound.next_campus.domain.post.model.PostCategory;
 import NotFound.next_campus.domain.post.model.PostType;
+import NotFound.next_campus.domain.post.repository.PostCategoryRepository;
 import NotFound.next_campus.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -27,7 +32,10 @@ public class PostServiceImpl implements PostService {
 
     private final MemberRepository memberRepository;
     private final LocationRepository locationRepository;
+    private final CategoryRepository categoryRepository;
+
     private final PostRepository postRepository;
+    private final PostCategoryRepository postCategoryRepository;
 
     @Override
     public Long savePost(CreatePostDTO dto) {
@@ -62,7 +70,19 @@ public class PostServiceImpl implements PostService {
             throw new IllegalArgumentException("공지는 관리자만 등록할 수 있습니다.");
         }
 
+        // 게시물 저장
         postRepository.save(post);
+
+        // 게시물 카테고리 저장
+        List<Category> categoryList = categoryRepository.findAllById(dto.getCategories());
+
+        for (Category c : categoryList) {
+
+            postCategoryRepository.save(PostCategory.builder()
+                    .post(post)
+                    .category(c)
+                    .build());
+        }
 
         return post.getId();
     }
