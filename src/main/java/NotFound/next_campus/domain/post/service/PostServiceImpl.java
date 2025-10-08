@@ -191,7 +191,7 @@ public class PostServiceImpl implements PostService {
         // 이미지 삭제
         deleteImage(post);
         // 게시물 카테고리 삭제
-        postCategoryRepository.deleteByPost(post);
+        // postCategoryRepository.deleteByPost(post);
         // 게시물 삭제
         postRepository.delete(post);
     }
