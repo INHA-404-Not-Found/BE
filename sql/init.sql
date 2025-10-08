@@ -53,10 +53,10 @@ CREATE TABLE category
     category_name VARCHAR(50) NOT NULL
 );
 
-DROP TABLE if EXISTS item CASCADE;
-CREATE TABLE item
+DROP TABLE if EXISTS post_category CASCADE;
+CREATE TABLE post_category
 (
-    item_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    post_category_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     post_id BIGINT NOT NULL,
     category_id BIGINT NOT NULL,
     FOREIGN KEY (post_id) REFERENCES post(post_id),
