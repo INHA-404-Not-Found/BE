@@ -57,12 +57,6 @@ public class Post {
     @Column(name = "is_personal")
     private Boolean isPersonal;
 
-    @Column(name = "original_file_name")
-    private String originalFileName;
-
-    @Column(name = "stored_file_name")
-    private String storedFileName;
-
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
