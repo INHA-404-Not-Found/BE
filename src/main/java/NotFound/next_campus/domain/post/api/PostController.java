@@ -43,9 +43,9 @@ public class PostController {
     @PostMapping("/{post_id}/images")
     public ResponseEntity<String> registerPostImage(
             @PathVariable("post_id") Long postId,
-            @RequestParam("file") MultipartFile file
+            @RequestParam("files") List<MultipartFile> files
     ) {
-        postService.savePostImage(postId, file);
+        postService.savePostImages(postId, files);
 
         return ResponseEntity.ok().body(
                 "이미지 등록 성공"
@@ -67,9 +67,9 @@ public class PostController {
     @PatchMapping("/{post_id}/images")
     public ResponseEntity<String> modifyPostImage(
             @PathVariable("post_id") Long postId,
-            @RequestParam("file") MultipartFile file
+            @RequestParam("files") List<MultipartFile> files
     ) {
-        postService.updatePostImage(postId, file);
+        postService.updatePostImages(postId, files);
 
         return ResponseEntity.ok().body(
                 "게시물 이미지 수정 성공"
