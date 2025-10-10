@@ -34,14 +34,12 @@ public interface PostService {
     PostResponseDTO getPostById(Long postId);
 
     /* 전체 게시물 목록 조회 */
-    List<PostResponseDTO> getAllPostList();
+    List<PostResponseDTO> getAllPostList(Pageable pageable, int pageNo);
 
     /* 게시물 목록 필터링 조회 */
-    List<PostResponseDTO> getPostsByTags(PostStatus status, PostType type, Long locationId, Long categoryId);
+    List<PostResponseDTO> getPostsByTags(PostStatus status, PostType type, Long locationId, Long categoryId,
+                                         Pageable pageable, int pageNo);
 
     /* 게시물 키워드 검색 */
-    List<PostResponseDTO> getPostsByKeyword(String keyword);
-
-    /* 게시물 페이징 조회 */
-    Page<PostResponseDTO> getPostsByPaging(Pageable pageable);
+    List<PostResponseDTO> getPostsByKeyword(String keyword, Pageable pageable, int pageNo);
 }

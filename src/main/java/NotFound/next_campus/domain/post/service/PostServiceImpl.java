@@ -45,6 +45,8 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final PostCategoryRepository postCategoryRepository;
 
+    private static int PAGE_LIMIT = 3;
+
     @Override
     public Long savePost(CreatePostDTO dto) {
 
@@ -248,10 +250,14 @@ public class PostServiceImpl implements PostService {
 
     /* 전체 조회 */
     @Override
-    public List<PostResponseDTO> getAllPostList() {
+    public List<PostResponseDTO> getAllPostList(Pageable pageable, int pageNo) {
+
+        pageable = PageRequest.of(pageNo, PAGE_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // 전체 게시물 목록 가져오기
-        List<Post> posts = postRepository.findAll();
+        Page<Post> postPage = postRepository.findAll(pageable);
+
+        List<Post> posts = postPage.getContent();
 
         return getPostResponses(posts);
     }
@@ -259,35 +265,29 @@ public class PostServiceImpl implements PostService {
     /* 필터링 검색 */
     @Override
     public List<PostResponseDTO> getPostsByTags(PostStatus status, PostType type,
-                                                Long locationId, Long categoryId) {
+                                                Long locationId, Long categoryId,
+                                                Pageable pageable, int pageNo) {
 
-        List<Post> posts = postRepository.findPostsByTags(status, type, locationId, categoryId);
+        pageable = PageRequest.of(pageNo, PAGE_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Post> postPage = postRepository.findPostsByTags(status, type, locationId, categoryId, pageable);
+
+        List<Post> posts = postPage.getContent();
 
         return getPostResponses(posts);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PostResponseDTO> getPostsByKeyword(String keyword) {
+    public List<PostResponseDTO> getPostsByKeyword(String keyword, Pageable pageable, int pageNo) {
 
-        List<Post> posts = postRepository.findAllSearch(keyword);
+        pageable = PageRequest.of(pageNo, PAGE_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Post> postPage = postRepository.findAllSearch(keyword, pageable);
+
+        List<Post> posts = postPage.getContent();
 
         return getPostResponses(posts);
-    }
-
-    @Override
-    public Page<PostResponseDTO> getPostsByPaging(Pageable pageable) {
-
-        int page = pageable.getPageNumber();
-        int pageLimit = 3;
-
-        Page<Post> postPages = postRepository.findAll(
-                PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "id"))
-        );
-
-        List<PostResponseDTO> pages = getPostResponses(postPages.getContent());
-
-        return new PageImpl<>(pages, pageable, postPages.getTotalElements());
     }
 
     private List<PostResponseDTO> getPostResponses(List<Post> posts) {
