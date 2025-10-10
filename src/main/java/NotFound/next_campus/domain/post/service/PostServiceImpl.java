@@ -9,6 +9,7 @@ import NotFound.next_campus.domain.member.model.Role;
 import NotFound.next_campus.domain.member.repository.MemberRepository;
 import NotFound.next_campus.domain.post.dto.request.CreatePostDTO;
 import NotFound.next_campus.domain.post.dto.request.UpdatePostDTO;
+import NotFound.next_campus.domain.post.dto.request.UpdatePostStatusDTO;
 import NotFound.next_campus.domain.post.dto.response.PostResponseDTO;
 import NotFound.next_campus.domain.post.model.Post;
 import NotFound.next_campus.domain.post.model.PostCategory;
@@ -60,7 +61,7 @@ public class PostServiceImpl implements PostService {
                 .build();
 
         // 게시물 상태가 POLICE 인 경우
-        if(Role.USER.equals(member.getRole())
+        if (Role.USER.equals(member.getRole())
                 && PostStatus.POLICE.equals(dto.getStatus())) {
             throw new IllegalArgumentException("인계 상태 등록 권한이 없습니다.");
         }
@@ -134,9 +135,9 @@ public class PostServiceImpl implements PostService {
         }
 
         // 게시물 상태 수정
-        if(dto.getStatus() != null) {
+        if (dto.getStatus() != null) {
 
-            if(Role.USER.equals(member.getRole()) &&
+            if (Role.USER.equals(member.getRole()) &&
                     PostStatus.POLICE.equals(dto.getStatus())) {
                 throw new IllegalArgumentException("인계 상태 수정 권한이 없습니다.");
             }
@@ -181,6 +182,24 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public void updateStatusOfPosts(UpdatePostStatusDTO dto) {
+
+        Member member = memberRepository.findById(dto.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if(!Role.ADMIN.equals(member.getRole())) {
+            throw new IllegalArgumentException("게시물 일괄 수정 권한이 없습니다.");
+        }
+
+        List<Post> posts = postRepository.findAllById(dto.getPostIds());
+
+        for(Post p : posts) {
+
+            if(dto.getStatus() != null) p.setStatus(dto.getStatus());
+        }
+    }
+
+    @Override
     public void deletePost(Long postId, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
@@ -188,7 +207,7 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다 ."));
 
-        if(Role.USER.equals(member.getRole()) &&
+        if (Role.USER.equals(member.getRole()) &&
                 !post.getMember().equals(member)) {
             throw new IllegalArgumentException("해당 게시물에 대한 삭제 권한이 없습니다.");
         }
@@ -199,6 +218,19 @@ public class PostServiceImpl implements PostService {
         // postCategoryRepository.deleteByPost(post);
         // 게시물 삭제
         postRepository.delete(post);
+    }
+
+    @Override
+    public void deletePosts(List<Long> postIds, Long memberId) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if(!Role.ADMIN.equals(member.getRole())) {
+            throw new IllegalArgumentException("게시물 일괄 삭제 권한이 없습니다.");
+        }
+
+        postRepository.deleteAllById(postIds);
     }
 
     @Override
@@ -214,6 +246,7 @@ public class PostServiceImpl implements PostService {
         return PostResponseDTO.from(post, categories);
     }
 
+    /* 전체 조회 */
     @Override
     public List<PostResponseDTO> getAllPostList() {
 
@@ -223,11 +256,21 @@ public class PostServiceImpl implements PostService {
         return getPostResponses(posts);
     }
 
+    /* 필터링 검색 */
     @Override
     public List<PostResponseDTO> getPostsByTags(PostStatus status, PostType type,
                                                 Long locationId, Long categoryId) {
 
         List<Post> posts = postRepository.findPostsByTags(status, type, locationId, categoryId);
+
+        return getPostResponses(posts);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PostResponseDTO> getPostsByKeyword(String keyword) {
+
+        List<Post> posts = postRepository.findAllSearch(keyword);
 
         return getPostResponses(posts);
     }
@@ -263,7 +306,7 @@ public class PostServiceImpl implements PostService {
                         )
                 ));
 
-        for(Post p : posts) {
+        for (Post p : posts) {
             List<String> categoriesOfPost = allPostCategories.getOrDefault(p.getId(), List.of());
             responses.add(PostResponseDTO.from(p, categoriesOfPost));
         }
@@ -312,7 +355,7 @@ public class PostServiceImpl implements PostService {
 
         String oldFileName = post.getStoredFileName();
         File oldFile = new File(UPLOAD_DIR + oldFileName);
-        if(oldFile.exists()) {
+        if (oldFile.exists()) {
             oldFile.delete();
         }
     }
