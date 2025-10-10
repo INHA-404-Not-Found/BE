@@ -21,14 +21,14 @@ public class PostResponseDTO {
     private String locationDetail;
     private String title;
     private String content;
-    private String imagePath;
+    private List<String> imagePath;
     private String storedLocation;
     private PostStatus status;
     private PostType type;
     private Boolean isPersonal;
     private List<String> categories;
 
-    public static PostResponseDTO from(Post post, List<String> categories) {
+    public static PostResponseDTO from(Post post, List<String> categories, List<String> images) {
 
         String locationName = post.getLocation() == null ? null : post.getLocation().getName();
 
@@ -39,7 +39,7 @@ public class PostResponseDTO {
                 .locationDetail(post.getLocationDetail())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .imagePath("/uploads/" + post.getStoredFileName())
+                .imagePath(images)
                 .storedLocation(post.getStoredLocation())
                 .status(post.getStatus())
                 .type(post.getType())
