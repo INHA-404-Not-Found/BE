@@ -17,14 +17,18 @@ import NotFound.next_campus.domain.post.model.PostType;
 import NotFound.next_campus.domain.post.repository.PostCategoryRepository;
 import NotFound.next_campus.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -156,7 +160,7 @@ public class PostServiceImpl implements PostService {
 
             // 기존 카테고리 삭제
             postCategoryRepository.deleteByPost(post);
-            
+
             // 새 카테고리 저장
             savePostCategory(post, dto.getCategories());
         }
@@ -208,6 +212,63 @@ public class PostServiceImpl implements PostService {
                 .toList();
 
         return PostResponseDTO.from(post, categories);
+    }
+
+    @Override
+    public List<PostResponseDTO> getAllPostList() {
+
+        // 전체 게시물 목록 가져오기
+        List<Post> posts = postRepository.findAll();
+
+        return getPostResponses(posts);
+    }
+
+    @Override
+    public List<PostResponseDTO> getPostsByTags(PostStatus status, PostType type,
+                                                Long locationId, Long categoryId) {
+
+        List<Post> posts = postRepository.findPostsByTags(status, type, locationId, categoryId);
+
+        return getPostResponses(posts);
+    }
+
+    @Override
+    public Page<PostResponseDTO> getPostsByPaging(Pageable pageable) {
+
+        int page = pageable.getPageNumber();
+        int pageLimit = 3;
+
+        Page<Post> postPages = postRepository.findAll(
+                PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "id"))
+        );
+
+        List<PostResponseDTO> pages = getPostResponses(postPages.getContent());
+
+        return new PageImpl<>(pages, pageable, postPages.getTotalElements());
+    }
+
+    private List<PostResponseDTO> getPostResponses(List<Post> posts) {
+
+        List<PostResponseDTO> responses = new ArrayList<>();
+
+        // 전체 게시물의 카테고리 목록 가져오기
+        List<PostCategory> categories = postCategoryRepository.findAllByPosts(posts);
+
+        // (게시물 id, List<카테고리명>)
+        Map<Long, List<String>> allPostCategories = categories.stream()
+                .collect(Collectors.groupingBy(
+                        pc -> pc.getPost().getId(),
+                        Collectors.mapping(
+                                pc -> pc.getCategory().getName(), Collectors.toList()
+                        )
+                ));
+
+        for(Post p : posts) {
+            List<String> categoriesOfPost = allPostCategories.getOrDefault(p.getId(), List.of());
+            responses.add(PostResponseDTO.from(p, categoriesOfPost));
+        }
+
+        return responses;
     }
 
     private void savePostCategory(Post post, List<Long> categories) {
