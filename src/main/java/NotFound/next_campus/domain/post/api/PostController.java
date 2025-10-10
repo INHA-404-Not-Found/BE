@@ -119,10 +119,14 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostResponseDTO>> getAllPosts() {
+    public ResponseEntity<List<PostResponseDTO>> getAllPosts(
+            @PageableDefault(page = 1) Pageable pageable,
+            @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo
+    ) {
+        pageNo = (pageNo == 0) ? 0 : pageNo - 1;
 
         return ResponseEntity.ok().body(
-                postService.getAllPostList()
+                postService.getAllPostList(pageable, pageNo)
         );
     }
 
@@ -131,26 +135,28 @@ public class PostController {
             @RequestParam(value = "status", required = false) PostStatus status,
             @RequestParam(value = "type", required = false) PostType type,
             @RequestParam(value = "location_id", required = false) Long locationId,
-            @RequestParam(value = "category_id", required = false) Long categoryId
+            @RequestParam(value = "category_id", required = false) Long categoryId,
+            @PageableDefault(page = 1) Pageable pageable,
+            @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo
     ) {
+        pageNo = (pageNo == 0) ? 0 : pageNo - 1;
+
         return ResponseEntity.ok().body(
-                postService.getPostsByTags(status, type, locationId, categoryId)
+                postService.getPostsByTags(status, type, locationId, categoryId,
+                        pageable, pageNo)
         );
     }
 
     @GetMapping("/search")
     public ResponseEntity<List<PostResponseDTO>> getPostsByKeyword(
-            @RequestParam("keyword") String keyword
+            @RequestParam("keyword") String keyword,
+            @PageableDefault(page = 1) Pageable pageable,
+            @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo
     ) {
-        return ResponseEntity.ok().body(
-                postService.getPostsByKeyword(keyword)
-        );
-    }
+        pageNo = (pageNo == 0) ? 0 : pageNo - 1;
 
-    @GetMapping("paging")
-    public ResponseEntity<Page<PostResponseDTO>> getPostsByPaging(Pageable pageable) {
         return ResponseEntity.ok().body(
-                postService.getPostsByPaging(pageable)
+                postService.getPostsByKeyword(keyword, pageable, pageNo)
         );
     }
 }
