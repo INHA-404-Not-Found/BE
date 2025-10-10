@@ -17,11 +17,11 @@ public interface PostService {
 
     /* 게시물 등록 */
     Long savePost(CreatePostDTO dto);
-    void savePostImage(Long postId, MultipartFile file);
+    void savePostImages(Long postId, List<MultipartFile> files);
 
     /* 게시물 수정 */
     Long updatePost(Long postId, UpdatePostDTO dto);
-    void updatePostImage(Long postId, MultipartFile file);
+    void updatePostImages(Long postId, List<MultipartFile> files);
     /* 게시물 인계 여부 일괄 수정 */
     void updateStatusOfPosts(UpdatePostStatusDTO dto);
 
