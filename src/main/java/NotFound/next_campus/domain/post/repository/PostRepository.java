@@ -23,4 +23,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                                @Param("type") PostType type,
                                @Param("locationId") Long locationId,
                                @Param("categoryId") Long categoryId);
+
+    @Query("SELECT p FROM Post p " +
+            "WHERE p.title LIKE CONCAT('%', :keyword, '%') " +
+            "OR p.content LIKE CONCAT('%', :keyword, '%')")
+    List<Post> findAllSearch(@Param("keyword") String keyword);
 }
