@@ -3,12 +3,18 @@ package NotFound.next_campus.domain.post.api;
 import NotFound.next_campus.domain.post.dto.request.CreatePostDTO;
 import NotFound.next_campus.domain.post.dto.request.UpdatePostDTO;
 import NotFound.next_campus.domain.post.dto.response.PostResponseDTO;
+import NotFound.next_campus.domain.post.model.PostStatus;
+import NotFound.next_campus.domain.post.model.PostType;
 import NotFound.next_campus.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -87,4 +93,31 @@ public class PostController {
                 postService.getPostById(postId)
         );
     }
+
+    @GetMapping
+    public ResponseEntity<List<PostResponseDTO>> getAllPosts() {
+
+        return ResponseEntity.ok().body(
+                postService.getAllPostList()
+        );
+    }
+
+    @GetMapping("tags")
+    public ResponseEntity<List<PostResponseDTO>> getPostsByTags(
+            @RequestParam(value = "status", required = false) PostStatus status,
+            @RequestParam(value = "type", required = false) PostType type,
+            @RequestParam(value = "location_id", required = false) Long locationId,
+            @RequestParam(value = "category_id", required = false) Long categoryId
+            ) {
+        return ResponseEntity.ok().body(
+                postService.getPostsByTags(status, type, locationId, categoryId)
+        );
+    }
+
+    /*@GetMapping("paging")
+    public ResponseEntity<Page<PostResponseDTO>> getPostsByPaging(Pageable pageable) {
+        return ResponseEntity.ok().body(
+                postService.getPostsByPaging(pageable)
+        );
+    }*/
 }
