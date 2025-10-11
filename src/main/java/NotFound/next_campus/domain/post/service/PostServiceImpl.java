@@ -9,22 +9,25 @@ import NotFound.next_campus.domain.member.model.Role;
 import NotFound.next_campus.domain.member.repository.MemberRepository;
 import NotFound.next_campus.domain.post.dto.request.CreatePostDTO;
 import NotFound.next_campus.domain.post.dto.request.UpdatePostDTO;
+import NotFound.next_campus.domain.post.dto.request.UpdatePostStatusDTO;
 import NotFound.next_campus.domain.post.dto.response.PostResponseDTO;
-import NotFound.next_campus.domain.post.model.Post;
-import NotFound.next_campus.domain.post.model.PostCategory;
-import NotFound.next_campus.domain.post.model.PostStatus;
-import NotFound.next_campus.domain.post.model.PostType;
+import NotFound.next_campus.domain.post.model.*;
 import NotFound.next_campus.domain.post.repository.PostCategoryRepository;
+import NotFound.next_campus.domain.post.repository.PostImageRepository;
 import NotFound.next_campus.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,9 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final PostCategoryRepository postCategoryRepository;
+    private final PostImageRepository postImageRepository;
+
+    private static int PAGE_LIMIT = 3;
 
     @Override
     public Long savePost(CreatePostDTO dto) {
@@ -56,7 +62,7 @@ public class PostServiceImpl implements PostService {
                 .build();
 
         // 게시물 상태가 POLICE 인 경우
-        if(Role.USER.equals(member.getRole())
+        if (Role.USER.equals(member.getRole())
                 && PostStatus.POLICE.equals(dto.getStatus())) {
             throw new IllegalArgumentException("인계 상태 등록 권한이 없습니다.");
         }
@@ -91,14 +97,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void savePostImage(Long postId, MultipartFile file) {
+    public void savePostImages(Long postId, List<MultipartFile> files) {
 
         /* 권한 체크 로직 추가 */
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다."));
 
-        saveImage(post, file);
+        saveImages(post, files);
     }
 
     @Override
@@ -130,9 +136,9 @@ public class PostServiceImpl implements PostService {
         }
 
         // 게시물 상태 수정
-        if(dto.getStatus() != null) {
+        if (dto.getStatus() != null) {
 
-            if(Role.USER.equals(member.getRole()) &&
+            if (Role.USER.equals(member.getRole()) &&
                     PostStatus.POLICE.equals(dto.getStatus())) {
                 throw new IllegalArgumentException("인계 상태 수정 권한이 없습니다.");
             }
@@ -156,7 +162,7 @@ public class PostServiceImpl implements PostService {
 
             // 기존 카테고리 삭제
             postCategoryRepository.deleteByPost(post);
-            
+
             // 새 카테고리 저장
             savePostCategory(post, dto.getCategories());
         }
@@ -165,15 +171,35 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void updatePostImage(Long postId, MultipartFile file) {
+    public void updatePostImages(Long postId, List<MultipartFile> files) {
 
         /* 권한 체크 로직 추가 */
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다."));
 
-        deleteImage(post);
-        saveImage(post, file);
+        List<PostImage> images = postImageRepository.findByPost(post);
+
+        deleteImages(images);
+        saveImages(post, files);
+    }
+
+    @Override
+    public void updateStatusOfPosts(UpdatePostStatusDTO dto) {
+
+        Member member = memberRepository.findById(dto.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if (!Role.ADMIN.equals(member.getRole())) {
+            throw new IllegalArgumentException("게시물 일괄 수정 권한이 없습니다.");
+        }
+
+        List<Post> posts = postRepository.findAllById(dto.getPostIds());
+
+        for (Post p : posts) {
+
+            if (dto.getStatus() != null) p.setStatus(dto.getStatus());
+        }
     }
 
     @Override
@@ -184,17 +210,29 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다 ."));
 
-        if(Role.USER.equals(member.getRole()) &&
+        if (Role.USER.equals(member.getRole()) &&
                 !post.getMember().equals(member)) {
             throw new IllegalArgumentException("해당 게시물에 대한 삭제 권한이 없습니다.");
         }
 
+        List<PostImage> images = postImageRepository.findByPost(post);
         // 이미지 삭제
-        deleteImage(post);
-        // 게시물 카테고리 삭제
-        // postCategoryRepository.deleteByPost(post);
+        deleteImages(images);
         // 게시물 삭제
         postRepository.delete(post);
+    }
+
+    @Override
+    public void deletePosts(List<Long> postIds, Long memberId) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if (!Role.ADMIN.equals(member.getRole())) {
+            throw new IllegalArgumentException("게시물 일괄 삭제 권한이 없습니다.");
+        }
+
+        postRepository.deleteAllById(postIds);
     }
 
     @Override
@@ -207,7 +245,88 @@ public class PostServiceImpl implements PostService {
                 .map(pc -> pc.getCategory().getName())
                 .toList();
 
-        return PostResponseDTO.from(post, categories);
+        List<String> images = postImageRepository.findByPost(post).stream()
+                .map(pi -> "/uploads/" + pi.getStoredFileName())
+                .toList();
+
+        return PostResponseDTO.from(post, categories, images);
+    }
+
+    /* 전체 조회 */
+    @Override
+    public List<PostResponseDTO> getAllPostList(Pageable pageable, int pageNo) {
+
+        pageable = PageRequest.of(pageNo, PAGE_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        // 전체 게시물 목록 가져오기
+        Page<Post> postPage = postRepository.findAll(pageable);
+
+        List<Post> posts = postPage.getContent();
+
+        return getPostResponses(posts);
+    }
+
+    /* 필터링 검색 */
+    @Override
+    public List<PostResponseDTO> getPostsByTags(PostStatus status, PostType type,
+                                                Long locationId, Long categoryId,
+                                                Pageable pageable, int pageNo) {
+
+        pageable = PageRequest.of(pageNo, PAGE_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Post> postPage = postRepository.findPostsByTags(status, type, locationId, categoryId, pageable);
+
+        List<Post> posts = postPage.getContent();
+
+        return getPostResponses(posts);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PostResponseDTO> getPostsByKeyword(String keyword, Pageable pageable, int pageNo) {
+
+        pageable = PageRequest.of(pageNo, PAGE_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Post> postPage = postRepository.findAllSearch(keyword, pageable);
+
+        List<Post> posts = postPage.getContent();
+
+        return getPostResponses(posts);
+    }
+
+    private List<PostResponseDTO> getPostResponses(List<Post> posts) {
+
+        List<PostResponseDTO> responses = new ArrayList<>();
+
+        // 전체 게시물의 카테고리 목록 가져오기
+        List<PostCategory> categories = postCategoryRepository.findAllByPosts(posts);
+        List<PostImage> images = postImageRepository.findAllByPosts(posts);
+
+        // (게시물 id, List<카테고리명>)
+        Map<Long, List<String>> allPostCategories = categories.stream()
+                .collect(Collectors.groupingBy(
+                        pc -> pc.getPost().getId(),
+                        Collectors.mapping(
+                                pc -> pc.getCategory().getName(), Collectors.toList()
+                        )
+                ));
+
+        // (게시물 id, 이미지 url)
+        Map<Long, List<String>> allPostImages = images.stream()
+                .collect(Collectors.groupingBy(
+                        pi -> pi.getPost().getId(),
+                        Collectors.mapping(
+                                pi -> "/uploads/" + pi.getStoredFileName(), Collectors.toList()
+                        )
+                ));
+
+        for (Post p : posts) {
+            List<String> categoriesOfPost = allPostCategories.getOrDefault(p.getId(), List.of());
+            List<String> imagesOfPost = allPostImages.getOrDefault(p.getId(), List.of());
+            responses.add(PostResponseDTO.from(p, categoriesOfPost, imagesOfPost));
+        }
+
+        return responses;
     }
 
     private void savePostCategory(Post post, List<Long> categories) {
@@ -224,7 +343,20 @@ public class PostServiceImpl implements PostService {
         }
     }
 
-    private void saveImage(Post post, MultipartFile file) {
+    private List<String> saveImages(Post post, List<MultipartFile> files) {
+
+        List<String> images = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+
+            String path = saveImage(post, file);
+            images.add(path);
+        }
+
+        return images;
+    }
+
+    private String saveImage(Post post, MultipartFile file) {
 
         if (file.isEmpty()) {
             throw new IllegalArgumentException("이미지가 존재하지 않습니다.");
@@ -243,15 +375,30 @@ public class PostServiceImpl implements PostService {
             throw new IllegalArgumentException("파일 저장 실패");
         }
 
-        post.setOriginalFileName(originalFileName);
-        post.setStoredFileName(storedFileName);
+        postImageRepository.save(PostImage.builder()
+                .post(post)
+                .originalFileName(originalFileName)
+                .storedFileName(storedFileName)
+                .build());
+
+        return "/uploads/" + storedFileName;
     }
 
-    private void deleteImage(Post post) {
+    private void deleteImages(List<PostImage> images) {
 
-        String oldFileName = post.getStoredFileName();
+        for (PostImage image : images) {
+
+            deleteImage(image);
+        }
+
+        postImageRepository.deleteAll(images);
+    }
+
+    private void deleteImage(PostImage image) {
+
+        String oldFileName = image.getStoredFileName();
         File oldFile = new File(UPLOAD_DIR + oldFileName);
-        if(oldFile.exists()) {
+        if (oldFile.exists()) {
             oldFile.delete();
         }
     }

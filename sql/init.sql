@@ -38,12 +38,22 @@ CREATE TABLE post
     status ENUM('UNCOMPLETED', 'COMPLETED', 'POLICE'),
     post_type ENUM('LOST', 'FIND', 'NOTICE'),
     is_personal BOOLEAN DEFAULT FALSE,
-    original_file_name VARCHAR(255),
-    stored_file_name VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
     FOREIGN KEY (location_id) REFERENCES location(location_id)
+);
+
+DROP TABLE if EXISTS post_image CASCADE;
+CREATE TABLE post_image
+(
+    post_image_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    post_id BIGINT NOT NULL,
+    original_file_name VARCHAR(255),
+    stored_file_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES post(post_id) ON DELETE CASCADE
 );
 
 DROP TABLE if EXISTS category CASCADE;
