@@ -31,21 +31,20 @@ public class TokenService {
     public LoginTokens login(LoginRequest req) {
         // 1) 인증 수행 (UserDetailsService와 PasswordEncoder로 검증)
         Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())
+                new UsernamePasswordAuthenticationToken(req.getStudentId(), req.getPassword())
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
 
 
         // 2) 토큰 생성
-        String access = tokenProvider.createAccessToken(req.getEmail());
-        String refresh = tokenProvider.createRefreshToken(req.getEmail());
+        String access = tokenProvider.createAccessToken(req.getStudentId());
+        String refresh = tokenProvider.createRefreshToken(req.getStudentId());
 
 
         // 3) DB에 refresh 저장 (expiry는 ISO_INSTANT 포맷)
         Instant expiry = Instant.now().plusMillis(tokenProvider.refreshTokenMillis);
         String expiryIso = DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC).format(expiry);
-        memberService.saveRefreshToken(req.getEmail(), refresh, expiryIso);
-
+        memberService.saveRefreshToken(req.getStudentId(), refresh, expiryIso);
 
         return new LoginTokens(access, refresh);
     }
@@ -54,30 +53,30 @@ public class TokenService {
     public LoginTokens refresh(String refreshToken) {
         // 토큰 자체 유효성 검증
         if (refreshToken == null || !tokenProvider.validateToken(refreshToken)) throw new TokenException("Invalid refresh token");
-        String email = tokenProvider.getSubjectFromToken(refreshToken);
+        String studentId = tokenProvider.getSubjectFromToken(refreshToken);
 
 
         // DB에 저장된 토큰과 비교
-        String stored = memberService.getRefreshToken(email);
+        String stored = memberService.getRefreshToken(Long.valueOf(studentId));
         if (stored == null || !stored.equals(refreshToken)) throw new TokenException("Refresh token not found or mismatched");
 
 
         // 만료 검사 (DB에 저장된 expiry와 비교)
-        String expiryIso = memberService.getRefreshExpiry(email);
+        String expiryIso = memberService.getRefreshExpiry(Long.valueOf(studentId));
         Instant expiry = memberService.parseExpiry(expiryIso);
         if (expiry == null || Instant.now().isAfter(expiry)) {
             // 만료된 경우 DB에서 삭제 후 인증 실패
-            memberService.clearRefreshToken(email);
+            memberService.clearRefreshToken(Long.valueOf(studentId));
             throw new TokenException("Refresh token expired");
         }
 
 
         // 새 토큰 발급 및 DB 갱신
-        String newAccess = tokenProvider.createAccessToken(email);
-        String newRefresh = tokenProvider.createRefreshToken(email);
+        String newAccess = tokenProvider.createAccessToken(Long.valueOf(studentId));
+        String newRefresh = tokenProvider.createRefreshToken(Long.valueOf(studentId));
         Instant newExpiry = Instant.now().plusMillis(tokenProvider.refreshTokenMillis);
         String newExpiryIso = DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC).format(newExpiry);
-        memberService.saveRefreshToken(email, newRefresh, newExpiryIso);
+        memberService.saveRefreshToken(Long.valueOf(studentId), newRefresh, newExpiryIso);
 
 
         return new LoginTokens(newAccess, newRefresh);
@@ -88,8 +87,8 @@ public class TokenService {
     public void logout(String refreshToken) {
         if (refreshToken == null) return;
         if (!tokenProvider.validateToken(refreshToken)) return;
-        String email = tokenProvider.getSubjectFromToken(refreshToken);
-        memberService.clearRefreshToken(email);
+        String studentId = tokenProvider.getSubjectFromToken(refreshToken);
+        memberService.clearRefreshToken(Long.valueOf(studentId));
     }
 
 

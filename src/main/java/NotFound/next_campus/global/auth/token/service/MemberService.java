@@ -28,14 +28,15 @@ public class MemberService implements UserDetailsService {
 
     // Spring Security가 인증 시 호출하는 메서드
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+    public UserDetails loadUserByUsername(String studentIdStr) throws UsernameNotFoundException {
+        Long studentId = Long.valueOf(studentIdStr);
+        Member member = memberRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + studentId));
 
 
         // 엔티티의 role을 이용해 UserDetails 생성 (간단히 문자열 role 사용)
         return org.springframework.security.core.userdetails.User
-                .withUsername(member.getEmail())
+                .withUsername(String.valueOf(member.getStudentId())) // 학번 기준 로그인
                 .password(member.getPassword())
                 .roles(member.getRole() == null ? "USER" : member.getRole().name())
                 .build();
@@ -43,8 +44,8 @@ public class MemberService implements UserDetailsService {
 
 
     // refresh token 저장: expiry는 ISO_INSTANT 문자열로 저장
-    public void saveRefreshToken(String email, String refreshToken, String expiryIsoString) {
-        Optional<Member> opt = memberRepository.findByEmail(email);
+    public void saveRefreshToken(Long studentId, String refreshToken, String expiryIsoString) {
+        Optional<Member> opt = memberRepository.findByStudentId(studentId);
         if (opt.isEmpty()) return;
         Member m = opt.get();
         m.setRefreshToken(refreshToken);
@@ -53,18 +54,18 @@ public class MemberService implements UserDetailsService {
     }
 
 
-    public String getRefreshToken(String email) {
-        return memberRepository.findByEmail(email).map(Member::getRefreshToken).orElse(null);
+    public String getRefreshToken(Long studentId) {
+        return memberRepository.findByStudentId(studentId).map(Member::getRefreshToken).orElse(null);
     }
 
 
-    public String getRefreshExpiry(String email) {
-        return memberRepository.findByEmail(email).map(Member::getRefreshExpiry).orElse(null);
+    public String getRefreshExpiry(Long studentId) {
+        return memberRepository.findByStudentId(studentId).map(Member::getRefreshExpiry).orElse(null);
     }
 
 
-    public void clearRefreshToken(String email) {
-        Optional<Member> opt = memberRepository.findByEmail(email);
+    public void clearRefreshToken(Long studentId) {
+        Optional<Member> opt = memberRepository.findByStudentId(studentId);
         if (opt.isEmpty()) return;
         Member m = opt.get();
         m.setRefreshToken(null);

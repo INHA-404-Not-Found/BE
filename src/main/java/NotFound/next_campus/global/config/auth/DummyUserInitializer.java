@@ -14,7 +14,7 @@ public class DummyUserInitializer {
     @Bean
     CommandLineRunner initDummyUser(MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            if (memberRepository.findByEmail("doyun20445@gmail.com").isEmpty()) {
+            if (memberRepository.findByStudentId(12234063L).isEmpty()) {
                 Member user = Member.builder()
                         .studentId(12234063L)
                         .name("doyeon")

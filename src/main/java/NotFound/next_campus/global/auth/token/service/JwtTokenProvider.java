@@ -33,11 +33,11 @@ public class JwtTokenProvider {
     }
 
 
-    // Access Token 생성 (subject에 email 포함)
-    public String createAccessToken(String email) {
+    // Access Token 생성 (subject에 studentId 포함)
+    public String createAccessToken(Long studentId) {
         Date now = new Date();
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(String.valueOf(studentId))
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessTokenMillis))
                 .signWith(key, SignatureAlgorithm.HS512)
@@ -46,10 +46,10 @@ public class JwtTokenProvider {
 
 
     // Refresh Token 생성
-    public String createRefreshToken(String email) {
+    public String createRefreshToken(Long studentId) {
         Date now = new Date();
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(String.valueOf(studentId))
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + refreshTokenMillis))
                 .signWith(key, SignatureAlgorithm.HS512)
@@ -57,7 +57,7 @@ public class JwtTokenProvider {
     }
 
 
-    // 토큰에서 subject(email) 추출
+    // 토큰에서 subject(studentId) 추출
     public String getSubjectFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().getSubject();
