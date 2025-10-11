@@ -1,5 +1,17 @@
 package NotFound.next_campus.global.auth.token.filter;
 
+import NotFound.next_campus.global.auth.token.service.JwtTokenProvider;
+import NotFound.next_campus.global.auth.token.service.MemberService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 
 /**
@@ -34,12 +46,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String resolveToken(HttpServletRequest request) {
-// 1) Authorization header
+        // 1) Authorization header
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             return header.substring(7);
         }
-// 2) cookie named ACCESS_TOKEN (웹에서 cookie로 사용시)
+        // 2) cookie named ACCESS_TOKEN (웹에서 cookie로 사용시)
         if (request.getCookies() != null) {
             for (Cookie c : request.getCookies()) {
                 if ("ACCESS_TOKEN".equals(c.getName())) return c.getValue();

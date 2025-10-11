@@ -1,19 +1,20 @@
 package NotFound.next_campus.global.auth.token.service;
+
+import NotFound.next_campus.domain.member.model.Member;
+import NotFound.next_campus.domain.member.repository.MemberRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
-
 /**
  * 기존 Member 엔티티/레포지토리와 연결하는 서비스
  * - UserDetailsService 구현으로 Spring Security가 사용
  * - refresh token 저장/조회/삭제 유틸 제공
- *
- * 주의: MemberRepository에는 `Optional<Member> findByEmail(String email)` 메서드가 있어야 합니다.
  */
 @Service
 public class MemberService implements UserDetailsService {
@@ -32,7 +33,7 @@ public class MemberService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
 
-// 엔티티의 role을 이용해 UserDetails 생성 (간단히 문자열 role 사용)
+        // 엔티티의 role을 이용해 UserDetails 생성 (간단히 문자열 role 사용)
         return org.springframework.security.core.userdetails.User
                 .withUsername(member.getEmail())
                 .password(member.getPassword())

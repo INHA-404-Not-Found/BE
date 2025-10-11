@@ -1,4 +1,11 @@
 package NotFound.next_campus.global.auth.token.api;
+
+import NotFound.next_campus.global.auth.token.dto.request.LoginRequest;
+import NotFound.next_campus.global.auth.token.dto.response.LoginResponse;
+import NotFound.next_campus.global.auth.token.dto.request.RefreshRequest;
+import NotFound.next_campus.global.auth.token.service.TokenService;
+import NotFound.next_campus.global.auth.token.service.TokenService.LoginTokens;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +32,7 @@ public class TokenController {
 
 
         if (req.getIsWeb()) {
-// 웹: refresh token을 HttpOnly 쿠키로 전달
+        // 웹: refresh token을 HttpOnly 쿠키로 전달
             Cookie cookie = new Cookie("REFRESH_TOKEN", tokens.refreshToken);
             cookie.setHttpOnly(true);
             cookie.setPath("/");
@@ -34,12 +41,12 @@ public class TokenController {
             response.addCookie(cookie);
 
 
-// access token은 JSON으로 전달 (웹에서는 프론트가 받아서 세션/메모리 관리)
+            // access token은 JSON으로 전달 (웹에서는 프론트가 받아서 세션/메모리 관리)
             return ResponseEntity.ok(new LoginResponse(tokens.accessToken, null));
         }
 
 
-// 앱: access + refresh 토큰을 JSON으로 반환 (앱은 refresh를 Secure Storage에 저장)
+        // 앱: access + refresh 토큰을 JSON으로 반환 (앱은 refresh를 Secure Storage에 저장)
         return ResponseEntity.ok(new LoginResponse(tokens.accessToken, tokens.refreshToken));
     }
 
@@ -61,7 +68,7 @@ public class TokenController {
         tokenService.logout(refresh);
 
 
-// 웹 쿠키 제거
+        // 웹 쿠키 제거
         Cookie cookie = new Cookie("REFRESH_TOKEN", "");
         cookie.setHttpOnly(true);
         cookie.setPath("/");
