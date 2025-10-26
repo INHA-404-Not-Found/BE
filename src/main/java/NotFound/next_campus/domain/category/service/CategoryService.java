@@ -1,7 +1,7 @@
 package NotFound.next_campus.domain.category.service;
 
-import NotFound.next_campus.domain.category.dto.CategoryRequestDTO;
-import NotFound.next_campus.domain.category.dto.CategoryResponseDTO;
+import NotFound.next_campus.domain.category.dto.request.CategoryRequestDTO;
+import NotFound.next_campus.domain.category.dto.response.CategoryResponseDTO;
 import NotFound.next_campus.domain.category.model.Category;
 import NotFound.next_campus.domain.category.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,19 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     // 새로운 카테고리 생성
-    public CategoryResponseDTO createCategory(CategoryRequestDTO requestDTO) {
+    public CategoryResponseDTO createCategory(CategoryRequestDTO requestDTO, org.springframework.security.core.userdetails.User userDetails) {
+        // UserDetails에서 role 추출g
+        String role = userDetails.getAuthorities().stream()
+                .map(auth -> auth.getAuthority())  // "ROLE_ADMIN" 같은 형식
+                .findFirst()
+                .orElse("USER");
+
+        // 권한 체크
+        if (!role.equals("ADMIN") && !role.equals("ROLE_ADMIN")) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
+
+        // 카테고리 생성
         Category category = Category.builder()
                 .name(requestDTO.getName())
                 .build();

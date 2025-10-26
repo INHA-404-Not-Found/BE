@@ -1,10 +1,11 @@
-package NotFound.next_campus.domain.category.controller;
+package NotFound.next_campus.domain.category.api;
 
-import NotFound.next_campus.domain.category.dto.CategoryRequestDTO;
-import NotFound.next_campus.domain.category.dto.CategoryResponseDTO;
+import NotFound.next_campus.domain.category.dto.request.CategoryRequestDTO;
+import NotFound.next_campus.domain.category.dto.response.CategoryResponseDTO;
 import NotFound.next_campus.domain.category.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +19,9 @@ public class CategoryController {
 
     // 카테고리 생성
     @PostMapping
-    public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO requestDTO) {
-        return ResponseEntity.ok(categoryService.createCategory(requestDTO));
+    public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO requestDTO, @AuthenticationPrincipal org.springframework.security.core.userdetails.User userDetails) {
+        CategoryResponseDTO response = categoryService.createCategory(requestDTO, userDetails);
+        return ResponseEntity.ok(response);
     }
 
     // 전체 카테고리 조회
