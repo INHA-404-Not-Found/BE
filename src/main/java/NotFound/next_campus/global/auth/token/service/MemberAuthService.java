@@ -83,4 +83,10 @@ public class MemberAuthService implements UserDetailsService {
             return null;
         }
     }
+
+    public String getRoleByStudentId(Long studentId) {
+        return memberRepository.findByStudentId(studentId)
+                .map(member -> member.getRole().name())
+                .orElse("USER");  // 기본값 USER
+    }
 }

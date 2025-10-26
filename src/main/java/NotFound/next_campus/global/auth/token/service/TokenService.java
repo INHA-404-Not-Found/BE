@@ -37,7 +37,8 @@ public class TokenService {
 
 
         // 2) 토큰 생성
-        String access = tokenProvider.createAccessToken(req.getStudentId());
+        String role = auth.getAuthorities().iterator().next().getAuthority();
+        String access = tokenProvider.createAccessToken(req.getStudentId(), role);
         String refresh = tokenProvider.createRefreshToken(req.getStudentId());
 
 
@@ -71,8 +72,10 @@ public class TokenService {
         }
 
 
+        String role = memberAuthService.getRoleByStudentId(Long.valueOf(studentId));
+
         // 새 토큰 발급 및 DB 갱신
-        String newAccess = tokenProvider.createAccessToken(Long.valueOf(studentId));
+        String newAccess = tokenProvider.createAccessToken(Long.valueOf(studentId), role);
         String newRefresh = tokenProvider.createRefreshToken(Long.valueOf(studentId));
         Instant newExpiry = Instant.now().plusMillis(tokenProvider.refreshTokenMillis);
         String newExpiryIso = DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC).format(newExpiry);
