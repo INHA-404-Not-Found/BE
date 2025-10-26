@@ -1,5 +1,6 @@
 package NotFound.next_campus.global.config.auth;
 
+import NotFound.next_campus.global.auth.token.service.MemberAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final NotFound.next_campus.global.auth.token.service.MemberService memberService;
+    private final MemberAuthService memberAuthService;
 
     // PasswordEncoder Bean
     @Bean
@@ -33,7 +34,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(memberService); // loadUserByUsername 사용
+        provider.setUserDetailsService(memberAuthService); // loadUserByUsername 사용
         provider.setPasswordEncoder(passwordEncoder()); // 비밀번호 비교 시 인코딩
         return provider;
     }

@@ -17,11 +17,11 @@ import java.util.Optional;
  * - refresh token 저장/조회/삭제 유틸 제공
  */
 @Service
-public class MemberService implements UserDetailsService {
+public class MemberAuthService implements UserDetailsService {
     private final MemberRepository memberRepository;
 
 
-    public MemberService(MemberRepository memberRepository) {
+    public MemberAuthService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
     }
 

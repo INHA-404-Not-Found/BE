@@ -1,7 +1,7 @@
 package NotFound.next_campus.global.auth.token.filter;
 
 import NotFound.next_campus.global.auth.token.service.JwtTokenProvider;
-import NotFound.next_campus.global.auth.token.service.MemberService;
+import NotFound.next_campus.global.auth.token.service.MemberAuthService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -22,11 +22,11 @@ import java.io.IOException;
  */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider tokenProvider;
-    private final MemberService memberService;
+    private final MemberAuthService memberAuthService;
 
-    public JwtAuthenticationFilter(JwtTokenProvider tokenProvider, MemberService memberService) {
+    public JwtAuthenticationFilter(JwtTokenProvider tokenProvider, MemberAuthService memberAuthService) {
         this.tokenProvider = tokenProvider;
-        this.memberService = memberService;
+        this.memberAuthService = memberAuthService;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
         if (token != null && tokenProvider.validateToken(token)) {
             String studentId = tokenProvider.getSubjectFromToken(token);
-            UserDetails userDetails = memberService.loadUserByUsername(studentId);
+            UserDetails userDetails = memberAuthService.loadUserByUsername(studentId);
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);
