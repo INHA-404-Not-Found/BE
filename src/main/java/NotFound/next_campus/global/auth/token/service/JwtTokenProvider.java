@@ -33,7 +33,7 @@ public class JwtTokenProvider {
     }
 
 
-    // Access Token 생성 (subject에 studentId 포함)
+    // Access Token 생성 (subject에 studentId+role 포함)
     public String createAccessToken(Long studentId, String role) {
         Map<String, Object> claims = Map.of(
                 "studentId", studentId,
