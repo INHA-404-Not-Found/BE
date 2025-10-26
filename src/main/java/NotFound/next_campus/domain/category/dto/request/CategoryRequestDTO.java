@@ -1,4 +1,4 @@
-package NotFound.next_campus.domain.category.dto;
+package NotFound.next_campus.domain.category.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

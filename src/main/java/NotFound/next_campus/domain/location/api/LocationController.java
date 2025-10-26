@@ -1,7 +1,7 @@
-package NotFound.next_campus.domain.location.controller;
+package NotFound.next_campus.domain.location.api;
 
-import NotFound.next_campus.domain.location.dto.LocationRequestDTO;
-import NotFound.next_campus.domain.location.dto.LocationResponseDTO;
+import NotFound.next_campus.domain.location.dto.request.LocationRequestDTO;
+import NotFound.next_campus.domain.location.dto.response.LocationResponseDTO;
 import NotFound.next_campus.domain.location.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
