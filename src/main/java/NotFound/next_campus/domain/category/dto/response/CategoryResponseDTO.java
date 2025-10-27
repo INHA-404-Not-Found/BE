@@ -1,4 +1,4 @@
-package NotFound.next_campus.domain.category.dto;
+package NotFound.next_campus.domain.category.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -18,13 +18,13 @@ import java.time.format.DateTimeFormatter;
 public class TokenService {
     private final AuthenticationManager authenticationManager;
     public final JwtTokenProvider tokenProvider; //일단 public으로 바꿈
-    private final MemberService memberService;
+    private final MemberAuthService memberAuthService;
 
 
-    public TokenService(AuthenticationManager authenticationManager, JwtTokenProvider tokenProvider, MemberService memberService) {
+    public TokenService(AuthenticationManager authenticationManager, JwtTokenProvider tokenProvider, MemberAuthService memberAuthService) {
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
-        this.memberService = memberService;
+        this.memberAuthService = memberAuthService;
     }
 
     @Transactional
@@ -37,14 +37,15 @@ public class TokenService {
 
 
         // 2) 토큰 생성
-        String access = tokenProvider.createAccessToken(req.getStudentId());
+        String role = auth.getAuthorities().iterator().next().getAuthority();
+        String access = tokenProvider.createAccessToken(req.getStudentId(), role);
         String refresh = tokenProvider.createRefreshToken(req.getStudentId());
 
 
         // 3) DB에 refresh 저장 (expiry는 ISO_INSTANT 포맷)
         Instant expiry = Instant.now().plusMillis(tokenProvider.refreshTokenMillis);
         String expiryIso = DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC).format(expiry);
-        memberService.saveRefreshToken(req.getStudentId(), refresh, expiryIso);
+        memberAuthService.saveRefreshToken(req.getStudentId(), refresh, expiryIso);
 
         return new LoginTokens(access, refresh);
     }
@@ -57,26 +58,28 @@ public class TokenService {
 
 
         // DB에 저장된 토큰과 비교
-        String stored = memberService.getRefreshToken(Long.valueOf(studentId));
+        String stored = memberAuthService.getRefreshToken(Long.valueOf(studentId));
         if (stored == null || !stored.equals(refreshToken)) throw new TokenException("Refresh token not found or mismatched");
 
 
         // 만료 검사 (DB에 저장된 expiry와 비교)
-        String expiryIso = memberService.getRefreshExpiry(Long.valueOf(studentId));
-        Instant expiry = memberService.parseExpiry(expiryIso);
+        String expiryIso = memberAuthService.getRefreshExpiry(Long.valueOf(studentId));
+        Instant expiry = memberAuthService.parseExpiry(expiryIso);
         if (expiry == null || Instant.now().isAfter(expiry)) {
             // 만료된 경우 DB에서 삭제 후 인증 실패
-            memberService.clearRefreshToken(Long.valueOf(studentId));
+            memberAuthService.clearRefreshToken(Long.valueOf(studentId));
             throw new TokenException("Refresh token expired");
         }
 
 
+        String role = memberAuthService.getRoleByStudentId(Long.valueOf(studentId));
+
         // 새 토큰 발급 및 DB 갱신
-        String newAccess = tokenProvider.createAccessToken(Long.valueOf(studentId));
+        String newAccess = tokenProvider.createAccessToken(Long.valueOf(studentId), role);
         String newRefresh = tokenProvider.createRefreshToken(Long.valueOf(studentId));
         Instant newExpiry = Instant.now().plusMillis(tokenProvider.refreshTokenMillis);
         String newExpiryIso = DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC).format(newExpiry);
-        memberService.saveRefreshToken(Long.valueOf(studentId), newRefresh, newExpiryIso);
+        memberAuthService.saveRefreshToken(Long.valueOf(studentId), newRefresh, newExpiryIso);
 
 
         return new LoginTokens(newAccess, newRefresh);
@@ -88,7 +91,7 @@ public class TokenService {
         if (refreshToken == null) return;
         if (!tokenProvider.validateToken(refreshToken)) return;
         String studentId = tokenProvider.getSubjectFromToken(refreshToken);
-        memberService.clearRefreshToken(Long.valueOf(studentId));
+        memberAuthService.clearRefreshToken(Long.valueOf(studentId));
     }
 
 

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-
+import java.util.Map;
 
 /**
  * JWT 토큰 생성/검증 유틸
@@ -33,10 +33,16 @@ public class JwtTokenProvider {
     }
 
 
-    // Access Token 생성 (subject에 studentId 포함)
-    public String createAccessToken(Long studentId) {
+    // Access Token 생성 (subject에 studentId+role 포함)
+    public String createAccessToken(Long studentId, String role) {
+        Map<String, Object> claims = Map.of(
+                "studentId", studentId,
+                "role", role
+        );
+
         Date now = new Date();
         return Jwts.builder()
+                .setClaims(claims)
                 .setSubject(String.valueOf(studentId))
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessTokenMillis))
@@ -61,6 +67,14 @@ public class JwtTokenProvider {
     public String getSubjectFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().getSubject();
+    }
+
+
+    // 토큰에서 role 추출
+    public String getRoleFromToken(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody();
+        return (String) claims.get("role");
     }
 
 

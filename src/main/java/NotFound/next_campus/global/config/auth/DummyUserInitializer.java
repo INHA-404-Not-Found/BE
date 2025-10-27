@@ -20,7 +20,7 @@ public class DummyUserInitializer {
                         .name("doyeon")
                         .email("doyun20445@gmail.com")
                         .department("CS")
-                        .role(Role.valueOf("USER"))
+                        .role(Role.valueOf("ADMIN"))
                         .password(passwordEncoder.encode("1234"))
                         .build();
 

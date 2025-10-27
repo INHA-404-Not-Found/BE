@@ -1,7 +1,7 @@
 package NotFound.next_campus.domain.location.service;
 
-import NotFound.next_campus.domain.location.dto.LocationRequestDTO;
-import NotFound.next_campus.domain.location.dto.LocationResponseDTO;
+import NotFound.next_campus.domain.location.dto.request.LocationRequestDTO;
+import NotFound.next_campus.domain.location.dto.response.LocationResponseDTO;
 import NotFound.next_campus.domain.location.model.Location;
 import NotFound.next_campus.domain.location.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
