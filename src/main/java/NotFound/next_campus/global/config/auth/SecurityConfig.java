@@ -1,8 +1,10 @@
 package NotFound.next_campus.global.config.auth;
 
+import NotFound.next_campus.domain.member.repository.MemberRepository;
 import NotFound.next_campus.global.auth.token.filter.JwtAuthenticationFilter;
 import NotFound.next_campus.global.auth.token.service.JwtTokenProvider;
 import NotFound.next_campus.global.auth.token.service.MemberAuthService;
+import NotFound.next_campus.global.auth.user.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +16,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -26,6 +29,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final MemberAuthService memberAuthService;
+    private final MemberRepository memberRepository;
     private final JwtTokenProvider tokenProvider;
 
     // PasswordEncoder Bean
@@ -50,6 +54,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public UserDetailsService userDetailsService() {
+        return new CustomUserDetailsService(memberRepository);
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -61,7 +70,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authenticationProvider())
-                
+
                 .addFilterBefore(
                         new JwtAuthenticationFilter(tokenProvider, memberAuthService),
                         UsernamePasswordAuthenticationFilter.class

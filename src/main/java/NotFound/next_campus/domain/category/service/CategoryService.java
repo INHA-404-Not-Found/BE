@@ -4,6 +4,8 @@ import NotFound.next_campus.domain.category.dto.request.CategoryRequestDTO;
 import NotFound.next_campus.domain.category.dto.response.CategoryResponseDTO;
 import NotFound.next_campus.domain.category.model.Category;
 import NotFound.next_campus.domain.category.repository.CategoryRepository;
+import NotFound.next_campus.domain.member.model.Role;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.security.access.AccessDeniedException;
@@ -18,21 +20,17 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     // 새로운 카테고리 생성
-    public CategoryResponseDTO createCategory(CategoryRequestDTO requestDTO, org.springframework.security.core.userdetails.User userDetails) {
+    public CategoryResponseDTO createCategory(CategoryRequestDTO requestDTO, CustomUserDetails userDetails) {
         // UserDetails에서 role 추출
-        String role = userDetails.getAuthorities().stream()
-                .map(auth -> auth.getAuthority())  // "ROLE_ADMIN" 같은 형식
-                .findFirst()
-                .orElse("USER");
+        Role role = userDetails.getMember().getRole();
+
+        if (role != Role.ADMIN) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
 
         //현재 로그인한 사용자의 이름과 role 로그로 확인
         System.out.println("현재 사용자: " + userDetails.getUsername());
         System.out.println("현재 권한들: " + userDetails.getAuthorities());
-
-        // 권한 체크
-        if (!role.equals("ADMIN") && !role.equals("ROLE_ADMIN")) {
-            throw new AccessDeniedException("권한이 없습니다."); // 403으로 응답됨
-        }
 
         // 카테고리 생성
         Category category = Category.builder()
@@ -58,7 +56,12 @@ public class CategoryService {
     }
 
     //카테고리 수정
-    public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO requestDTO) {
+    public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO requestDTO, CustomUserDetails userDetails) {
+        // 권한 체크
+        if (!userDetails.getMember().getRole().equals(Role.ADMIN)) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
+
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
         category.setName(requestDTO.getName());
@@ -67,7 +70,12 @@ public class CategoryService {
     }
 
     //카테고리 삭제
-    public void deleteCategory(Long id) {
+    public void deleteCategory(Long id, CustomUserDetails userDetails) {
+        // 권한 체크
+        if (!userDetails.getMember().getRole().equals(Role.ADMIN)) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
+
         categoryRepository.deleteById(id);
     }
 }

@@ -3,6 +3,7 @@ package NotFound.next_campus.domain.category.api;
 import NotFound.next_campus.domain.category.dto.request.CategoryRequestDTO;
 import NotFound.next_campus.domain.category.dto.response.CategoryResponseDTO;
 import NotFound.next_campus.domain.category.service.CategoryService;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,7 +20,7 @@ public class CategoryController {
 
     // 카테고리 생성
     @PostMapping
-    public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO requestDTO, @AuthenticationPrincipal org.springframework.security.core.userdetails.User userDetails) {
+    public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO requestDTO, @AuthenticationPrincipal CustomUserDetails userDetails) {
         CategoryResponseDTO response = categoryService.createCategory(requestDTO, userDetails);
         return ResponseEntity.ok(response);
     }
@@ -39,14 +40,14 @@ public class CategoryController {
     // 카테고리 수정
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable Long id,
-                                                              @RequestBody CategoryRequestDTO requestDTO) {
-        return ResponseEntity.ok(categoryService.updateCategory(id, requestDTO));
+                                                              @RequestBody CategoryRequestDTO requestDTO, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(categoryService.updateCategory(id, requestDTO, userDetails));
     }
 
     // 카테고리 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        categoryService.deleteCategory(id, userDetails);
         return ResponseEntity.noContent().build();
     }
 }
