@@ -3,8 +3,10 @@ package NotFound.next_campus.domain.location.api;
 import NotFound.next_campus.domain.location.dto.request.LocationRequestDTO;
 import NotFound.next_campus.domain.location.dto.response.LocationResponseDTO;
 import NotFound.next_campus.domain.location.service.LocationService;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +20,8 @@ public class LocationController {
 
     // 위치 생성
     @PostMapping
-    public ResponseEntity<LocationResponseDTO> createLocation(@RequestBody LocationRequestDTO requestDTO) {
-        return ResponseEntity.ok(locationService.createLocation(requestDTO));
+    public ResponseEntity<LocationResponseDTO> createLocation(@RequestBody LocationRequestDTO requestDTO, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(locationService.createLocation(requestDTO, userDetails));
     }
 
     // 전체 위치 조회
@@ -37,14 +39,14 @@ public class LocationController {
     // 위치 수정
     @PutMapping("/{id}")
     public ResponseEntity<LocationResponseDTO> updateLocation(@PathVariable Long id,
-                                                              @RequestBody LocationRequestDTO requestDTO) {
-        return ResponseEntity.ok(locationService.updateLocation(id, requestDTO));
+                                                              @RequestBody LocationRequestDTO requestDTO, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(locationService.updateLocation(id, requestDTO, userDetails));
     }
 
     // 위치 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLocation(@PathVariable Long id) {
-        locationService.deleteLocation(id);
+    public ResponseEntity<Void> deleteLocation(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        locationService.deleteLocation(id, userDetails);
         return ResponseEntity.noContent().build();
     }
 }

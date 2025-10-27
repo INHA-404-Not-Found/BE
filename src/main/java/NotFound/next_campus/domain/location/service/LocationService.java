@@ -4,6 +4,8 @@ import NotFound.next_campus.domain.location.dto.request.LocationRequestDTO;
 import NotFound.next_campus.domain.location.dto.response.LocationResponseDTO;
 import NotFound.next_campus.domain.location.model.Location;
 import NotFound.next_campus.domain.location.repository.LocationRepository;
+import NotFound.next_campus.domain.member.model.Role;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +19,14 @@ public class LocationService {
     private final LocationRepository locationRepository;
 
     // 새로운 위치 등록
-    public LocationResponseDTO createLocation(LocationRequestDTO requestDTO) {
+    public LocationResponseDTO createLocation(LocationRequestDTO requestDTO, CustomUserDetails userDetails) {
+        // UserDetails에서 role 추출
+        Role role = userDetails.getMember().getRole();
+
+        if (role != Role.ADMIN) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
+
         Location location = Location.builder()
                 .name(requestDTO.getName())
                 .build();
@@ -41,7 +50,12 @@ public class LocationService {
     }
 
     // 위치 정보 수정
-    public LocationResponseDTO updateLocation(Long id, LocationRequestDTO requestDTO) {
+    public LocationResponseDTO updateLocation(Long id, LocationRequestDTO requestDTO, CustomUserDetails userDetails) {
+        // 권한 체크
+        if (!userDetails.getMember().getRole().equals(Role.ADMIN)) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
+
         Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 위치입니다."));
 
@@ -52,7 +66,12 @@ public class LocationService {
     }
 
     // 위치 삭제
-    public void deleteLocation(Long id) {
+    public void deleteLocation(Long id, CustomUserDetails userDetails) {
+        // 권한 체크
+        if (!userDetails.getMember().getRole().equals(Role.ADMIN)) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
+
         locationRepository.deleteById(id);
     }
 }
