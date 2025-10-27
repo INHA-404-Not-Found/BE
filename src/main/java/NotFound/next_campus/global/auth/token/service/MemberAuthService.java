@@ -2,6 +2,7 @@ package NotFound.next_campus.global.auth.token.service;
 
 import NotFound.next_campus.domain.member.model.Member;
 import NotFound.next_campus.domain.member.repository.MemberRepository;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,18 +29,13 @@ public class MemberAuthService implements UserDetailsService {
 
     // Spring Security가 인증 시 호출하는 메서드
     @Override
-    public UserDetails loadUserByUsername(String studentIdStr) throws UsernameNotFoundException {
+    public CustomUserDetails loadUserByUsername(String studentIdStr) throws UsernameNotFoundException {
         Long studentId = Long.valueOf(studentIdStr);
         Member member = memberRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + studentId));
 
-
-        // 엔티티의 role을 이용해 UserDetails 생성 (간단히 문자열 role 사용)
-        return org.springframework.security.core.userdetails.User
-                .withUsername(String.valueOf(member.getStudentId())) // 학번 기준 로그인
-                .password(member.getPassword())
-                .roles(member.getRole() == null ? "USER" : member.getRole().name())
-                .build();
+        // CustomUserDetails 반환
+        return new CustomUserDetails(member);
     }
 
 

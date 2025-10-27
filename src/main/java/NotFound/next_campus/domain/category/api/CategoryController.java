@@ -3,6 +3,7 @@ package NotFound.next_campus.domain.category.api;
 import NotFound.next_campus.domain.category.dto.request.CategoryRequestDTO;
 import NotFound.next_campus.domain.category.dto.response.CategoryResponseDTO;
 import NotFound.next_campus.domain.category.service.CategoryService;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,7 +20,7 @@ public class CategoryController {
 
     // 카테고리 생성
     @PostMapping
-    public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO requestDTO, @AuthenticationPrincipal org.springframework.security.core.userdetails.User userDetails) {
+    public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO requestDTO, @AuthenticationPrincipal CustomUserDetails userDetails) {
         CategoryResponseDTO response = categoryService.createCategory(requestDTO, userDetails);
         return ResponseEntity.ok(response);
     }

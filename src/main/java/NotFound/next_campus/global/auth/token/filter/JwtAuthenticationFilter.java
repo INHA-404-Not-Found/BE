@@ -1,7 +1,9 @@
 package NotFound.next_campus.global.auth.token.filter;
 
+import NotFound.next_campus.domain.member.model.Member;
 import NotFound.next_campus.global.auth.token.service.JwtTokenProvider;
 import NotFound.next_campus.global.auth.token.service.MemberAuthService;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -35,11 +37,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
         if (token != null && tokenProvider.validateToken(token)) {
-            String studentId = tokenProvider.getSubjectFromToken(token);
-            UserDetails userDetails = memberAuthService.loadUserByUsername(studentId);
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            String studentIdStr = tokenProvider.getSubjectFromToken(token);
+
+            // CustomUserDetails 사용
+            CustomUserDetails userDetails = memberAuthService.loadUserByUsername(studentIdStr);
+
+            if (userDetails != null) {
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
         }
 
         filterChain.doFilter(request, response);
