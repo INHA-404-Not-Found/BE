@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreatePostDTO {
-    private Long memberId;          // 게시자
+    // private Long memberId;          // 게시자
     private Long locationId;        // 발견 장소
     private String locationDetail;  // 세부 발견 장소
     private String title;           // 제목
