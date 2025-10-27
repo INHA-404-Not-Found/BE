@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateReceiverDTO {
-    private Long memberId;
+    // private Long memberId;
     private String name;
     private String email;
     private String phoneNumber;
