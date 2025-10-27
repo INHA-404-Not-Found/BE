@@ -10,7 +10,9 @@ import NotFound.next_campus.domain.receiver.dto.request.UpdateReceiverDTO;
 import NotFound.next_campus.domain.receiver.dto.response.ReceiverResponseDTO;
 import NotFound.next_campus.domain.receiver.model.Receiver;
 import NotFound.next_campus.domain.receiver.repository.ReceiverRepository;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,13 +29,12 @@ public class ReceiverServiceImpl implements ReceiverService {
     private final ReceiverRepository receiverRepository;
 
     @Override
-    public Long saveReceiver(CreateReceiverDTO dto) {
+    public Long saveReceiver(CreateReceiverDTO dto, CustomUserDetails userDetails) {
 
-        Member member = memberRepository.findById(dto.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        Member member = userDetails.getMember();
 
         if (!Role.ADMIN.equals(member.getRole())) {
-            throw new IllegalArgumentException("수령인 등록 권한이 없습니다.");
+            throw new AccessDeniedException("수령인 등록 권한이 없습니다.");
         }
 
         Post post = postRepository.findById(dto.getPostId())
@@ -51,13 +52,12 @@ public class ReceiverServiceImpl implements ReceiverService {
     }
 
     @Override
-    public void updateReceiver(Long receiverId, UpdateReceiverDTO dto) {
+    public void updateReceiver(Long receiverId, UpdateReceiverDTO dto, CustomUserDetails userDetails) {
 
-        Member member = memberRepository.findById(dto.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        Member member = userDetails.getMember();
 
         if (!Role.ADMIN.equals(member.getRole())) {
-            throw new IllegalArgumentException("수령인 수정 권한이 없습니다.");
+            throw new AccessDeniedException("수령인 수정 권한이 없습니다.");
         }
 
         Receiver receiver = receiverRepository.findById(receiverId)
@@ -70,9 +70,11 @@ public class ReceiverServiceImpl implements ReceiverService {
     }
 
     @Override
-    public void deleteReceiver(Long receiverId) {
+    public void deleteReceiver(Long receiverId, CustomUserDetails userDetails) {
 
-        /* 권한 체크 로직 추가 */
+        if(!Role.ADMIN.equals(userDetails.getRole())) {
+            throw new AccessDeniedException("수령인 삭제 권한이 없습니다.");
+        }
 
         Receiver receiver = receiverRepository.findById(receiverId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 수령인입니다."));
@@ -81,9 +83,11 @@ public class ReceiverServiceImpl implements ReceiverService {
     }
 
     @Override
-    public ReceiverResponseDTO getReceiverInfo(Long receiverId) {
+    public ReceiverResponseDTO getReceiverInfo(Long receiverId, CustomUserDetails userDetails) {
 
-        /* 권한 체크 로직 추가 */
+        if(!Role.ADMIN.equals(userDetails.getRole())) {
+            throw new AccessDeniedException("수령인 조회 권한이 없습니다.");
+        }
 
         Receiver receiver = receiverRepository.findById(receiverId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 수령인입니다."));
@@ -92,9 +96,11 @@ public class ReceiverServiceImpl implements ReceiverService {
     }
 
     @Override
-    public ReceiverResponseDTO getReceiverByPost(Long postId) {
+    public ReceiverResponseDTO getReceiverByPost(Long postId, CustomUserDetails userDetails) {
 
-        /* 권한 체크 로직 추가 */
+        if(!Role.ADMIN.equals(userDetails.getRole())) {
+            throw new AccessDeniedException("수령인 조회 권한이 없습니다.");
+        }
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다."));
@@ -110,15 +116,12 @@ public class ReceiverServiceImpl implements ReceiverService {
     }
 
     @Override
-    public List<ReceiverResponseDTO> getAllReceivers(Long memberId) {
+    public List<ReceiverResponseDTO> getAllReceivers(CustomUserDetails userDetails) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-
-        if (!Role.ADMIN.equals(member.getRole())) {
-            throw new IllegalArgumentException("수령인 조회 권한이 없습니다.");
+        if(!Role.ADMIN.equals(userDetails.getRole())) {
+            throw new AccessDeniedException("수령인 조회 권한이 없습니다.");
         }
-
+        
         return receiverRepository.findAll().stream()
                 .map(ReceiverResponseDTO::from)
                 .toList();
