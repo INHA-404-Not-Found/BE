@@ -8,11 +8,13 @@ import NotFound.next_campus.domain.post.dto.response.PostResponseDTO;
 import NotFound.next_campus.domain.post.model.PostStatus;
 import NotFound.next_campus.domain.post.model.PostType;
 import NotFound.next_campus.domain.post.service.PostService;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,9 +30,10 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> registerPost(
-            @RequestBody CreatePostDTO request
-    ) {
-        Long postId = postService.savePost(request);
+            @RequestBody CreatePostDTO request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+            ) {
+        Long postId = postService.savePost(request, userDetails);
 
         return ResponseEntity.ok().body(
                 Map.of(
@@ -43,9 +46,10 @@ public class PostController {
     @PostMapping("/{post_id}/images")
     public ResponseEntity<String> registerPostImage(
             @PathVariable("post_id") Long postId,
-            @RequestParam("files") List<MultipartFile> files
+            @RequestParam("files") List<MultipartFile> files,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        postService.savePostImages(postId, files);
+        postService.savePostImages(postId, files, userDetails);
 
         return ResponseEntity.ok().body(
                 "이미지 등록 성공"
@@ -55,9 +59,10 @@ public class PostController {
     @PatchMapping("/{post_id}")
     public ResponseEntity<String> modifyPost(
             @PathVariable("post_id") Long postId,
-            @RequestBody UpdatePostDTO request
+            @RequestBody UpdatePostDTO request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        postService.updatePost(postId, request);
+        postService.updatePost(postId, request, userDetails);
 
         return ResponseEntity.ok().body(
                 "게시물 수정 성공"
@@ -67,9 +72,10 @@ public class PostController {
     @PatchMapping("/{post_id}/images")
     public ResponseEntity<String> modifyPostImage(
             @PathVariable("post_id") Long postId,
-            @RequestParam("files") List<MultipartFile> files
+            @RequestParam("files") List<MultipartFile> files,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        postService.updatePostImages(postId, files);
+        postService.updatePostImages(postId, files, userDetails);
 
         return ResponseEntity.ok().body(
                 "게시물 이미지 수정 성공"
@@ -78,9 +84,10 @@ public class PostController {
 
     @PatchMapping("/update")
     public ResponseEntity<String> modifyPosts(
-            @RequestBody UpdatePostStatusDTO request
+            @RequestBody UpdatePostStatusDTO request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        postService.updateStatusOfPosts(request);
+        postService.updateStatusOfPosts(request, userDetails);
 
         return ResponseEntity.ok().body(
                 "게시물 인계 여부 일괄 수정 성공"
@@ -89,9 +96,10 @@ public class PostController {
 
     @DeleteMapping("/{post_id}")
     public ResponseEntity<String> removePost(
-            @PathVariable("post_id") Long postId
+            @PathVariable("post_id") Long postId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        postService.deletePost(postId, 1L);
+        postService.deletePost(postId, userDetails);
 
         return ResponseEntity.ok().body(
                 "게시물 삭제 성공"
@@ -100,9 +108,10 @@ public class PostController {
 
     @PostMapping("/delete")
     public ResponseEntity<String> removePosts(
-            @RequestBody DeletePostDTO request
+            @RequestBody DeletePostDTO request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        postService.deletePosts(request.getPostIds(), request.getMemberId());
+        postService.deletePosts(request.getPostIds(), userDetails);
 
         return ResponseEntity.ok().body(
                 "게시물 일괄 삭제 성공"
