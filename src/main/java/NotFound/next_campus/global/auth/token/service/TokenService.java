@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
@@ -42,10 +43,9 @@ public class TokenService {
         String refresh = tokenProvider.createRefreshToken(req.getStudentId());
 
 
-        // 3) DB에 refresh 저장 (expiry는 ISO_INSTANT 포맷)
-        Instant expiry = Instant.now().plusMillis(tokenProvider.refreshTokenMillis);
-        String expiryIso = DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC).format(expiry);
-        memberAuthService.saveRefreshToken(req.getStudentId(), refresh, expiryIso);
+        // 3) DB에 refresh 저장
+        LocalDateTime expiry = LocalDateTime.ofInstant(Instant.now().plusMillis(tokenProvider.refreshTokenMillis), ZoneOffset.UTC);
+        memberAuthService.saveRefreshToken(req.getStudentId(), refresh, expiry);
 
         return new LoginTokens(access, refresh);
     }
@@ -63,12 +63,10 @@ public class TokenService {
 
 
         // 만료 검사 (DB에 저장된 expiry와 비교)
-        String expiryIso = memberAuthService.getRefreshExpiry(Long.valueOf(studentId));
-        Instant expiry = memberAuthService.parseExpiry(expiryIso);
-        if (expiry == null || Instant.now().isAfter(expiry)) {
-            // 만료된 경우 DB에서 삭제 후 인증 실패
+        LocalDateTime expiry = memberAuthService.getRefreshExpiry(Long.valueOf(studentId));
+        if (expiry == null || LocalDateTime.now(ZoneOffset.UTC).isAfter(expiry)) {
             memberAuthService.clearRefreshToken(Long.valueOf(studentId));
-            throw new TokenException("Refresh token expired");
+            throw new TokenException("Refresh token이 만료되었습니다.");
         }
 
 
@@ -77,9 +75,8 @@ public class TokenService {
         // 새 토큰 발급 및 DB 갱신
         String newAccess = tokenProvider.createAccessToken(Long.valueOf(studentId), role);
         String newRefresh = tokenProvider.createRefreshToken(Long.valueOf(studentId));
-        Instant newExpiry = Instant.now().plusMillis(tokenProvider.refreshTokenMillis);
-        String newExpiryIso = DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC).format(newExpiry);
-        memberAuthService.saveRefreshToken(Long.valueOf(studentId), newRefresh, newExpiryIso);
+        LocalDateTime newExpiry = LocalDateTime.ofInstant(Instant.now().plusMillis(tokenProvider.refreshTokenMillis), ZoneOffset.UTC);
+        memberAuthService.saveRefreshToken(Long.valueOf(studentId), newRefresh, newExpiry);
 
 
         return new LoginTokens(newAccess, newRefresh);

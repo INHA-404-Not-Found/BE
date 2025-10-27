@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
@@ -39,14 +40,13 @@ public class MemberAuthService implements UserDetailsService {
     }
 
 
-    // refresh token 저장: expiry는 ISO_INSTANT 문자열로 저장
-    public void saveRefreshToken(Long studentId, String refreshToken, String expiryIsoString) {
-        Optional<Member> opt = memberRepository.findByStudentId(studentId);
-        if (opt.isEmpty()) return;
-        Member m = opt.get();
-        m.setRefreshToken(refreshToken);
-        m.setRefreshExpiry(expiryIsoString);
-        memberRepository.save(m);
+    // refresh token 저장
+    public void saveRefreshToken(Long studentId, String refreshToken, LocalDateTime expiry) {
+        memberRepository.findByStudentId(studentId).ifPresent(m -> {
+            m.setRefreshToken(refreshToken);
+            m.setRefreshExpiry(expiry);
+            memberRepository.save(m);
+        });
     }
 
 
@@ -55,7 +55,7 @@ public class MemberAuthService implements UserDetailsService {
     }
 
 
-    public String getRefreshExpiry(Long studentId) {
+    public LocalDateTime getRefreshExpiry(Long studentId) {
         return memberRepository.findByStudentId(studentId).map(Member::getRefreshExpiry).orElse(null);
     }
 
