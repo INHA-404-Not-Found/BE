@@ -40,14 +40,14 @@ public class CategoryController {
     // 카테고리 수정
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable Long id,
-                                                              @RequestBody CategoryRequestDTO requestDTO) {
-        return ResponseEntity.ok(categoryService.updateCategory(id, requestDTO));
+                                                              @RequestBody CategoryRequestDTO requestDTO, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(categoryService.updateCategory(id, requestDTO, userDetails));
     }
 
     // 카테고리 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        categoryService.deleteCategory(id, userDetails);
         return ResponseEntity.noContent().build();
     }
 }

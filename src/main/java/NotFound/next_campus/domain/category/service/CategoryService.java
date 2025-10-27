@@ -56,7 +56,12 @@ public class CategoryService {
     }
 
     //카테고리 수정
-    public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO requestDTO) {
+    public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO requestDTO, CustomUserDetails userDetails) {
+        // 권한 체크
+        if (!userDetails.getMember().getRole().equals(Role.ADMIN)) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
+
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
         category.setName(requestDTO.getName());
@@ -65,7 +70,12 @@ public class CategoryService {
     }
 
     //카테고리 삭제
-    public void deleteCategory(Long id) {
+    public void deleteCategory(Long id, CustomUserDetails userDetails) {
+        // 권한 체크
+        if (!userDetails.getMember().getRole().equals(Role.ADMIN)) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
+
         categoryRepository.deleteById(id);
     }
 }
