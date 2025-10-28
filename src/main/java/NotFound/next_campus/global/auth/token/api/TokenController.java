@@ -3,6 +3,7 @@ package NotFound.next_campus.global.auth.token.api;
 import NotFound.next_campus.global.auth.token.dto.request.LoginRequest;
 import NotFound.next_campus.global.auth.token.dto.response.LoginResponse;
 import NotFound.next_campus.global.auth.token.dto.request.RefreshRequest;
+import NotFound.next_campus.global.auth.token.service.JwtTokenProvider;
 import NotFound.next_campus.global.auth.token.service.TokenService;
 import NotFound.next_campus.global.auth.token.service.TokenService.LoginTokens;
 import jakarta.servlet.http.Cookie;
@@ -21,9 +22,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class TokenController {
     private final TokenService tokenService;
+    private final JwtTokenProvider tokenProvider;
 
-
-    public TokenController(TokenService tokenService) { this.tokenService = tokenService; }
+    public TokenController(TokenService tokenService, JwtTokenProvider tokenProvider) {
+        this.tokenService = tokenService;
+        this.tokenProvider = tokenProvider;
+    }
 
 
     @PostMapping("/login")
@@ -36,7 +40,7 @@ public class TokenController {
             Cookie cookie = new Cookie("REFRESH_TOKEN", tokens.refreshToken);
             cookie.setHttpOnly(true);
             cookie.setPath("/");
-            cookie.setMaxAge((int)(tokenService.tokenProvider.refreshTokenMillis / 1000)); // 초 단위
+            cookie.setMaxAge((int)(tokenProvider.refreshTokenMillis / 1000)); // 초 단위
             cookie.setSecure(false); // 개발환경: false, 운영: true 및 HTTPS 사용
             response.addCookie(cookie);
 
