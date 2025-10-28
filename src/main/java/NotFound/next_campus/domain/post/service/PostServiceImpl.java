@@ -16,6 +16,7 @@ import NotFound.next_campus.domain.post.repository.PostCategoryRepository;
 import NotFound.next_campus.domain.post.repository.PostImageRepository;
 import NotFound.next_campus.domain.post.repository.PostRepository;
 import NotFound.next_campus.global.auth.user.CustomUserDetails;
+import NotFound.next_campus.global.mail.service.MailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.security.access.AccessDeniedException;
@@ -39,6 +40,7 @@ public class PostServiceImpl implements PostService {
     private final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/";
 
     private final MemberRepository memberRepository;
+    private final MailService mailService;
     private final LocationRepository locationRepository;
     private final CategoryRepository categoryRepository;
 
@@ -92,6 +94,13 @@ public class PostServiceImpl implements PostService {
         postRepository.save(post);
 
         savePostCategory(post, dto.getCategories());
+
+        // ✅ 분실물(isPersonal=true)인 경우, 해당 학생에게 이메일 발송
+        if (Boolean.TRUE.equals(post.getIsPersonal())) {
+            String studentEmail = member.getEmail(); // Member 엔티티에 이메일 필드가 있다고 가정
+            String studentName = member.getName();
+            mailService.sendPersonalLostEmail(studentEmail, studentName, post.getTitle(), post.getCreatedAt());
+        }
 
         return post.getId();
     }
