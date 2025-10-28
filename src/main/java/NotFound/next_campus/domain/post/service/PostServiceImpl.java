@@ -15,8 +15,10 @@ import NotFound.next_campus.domain.post.model.*;
 import NotFound.next_campus.domain.post.repository.PostCategoryRepository;
 import NotFound.next_campus.domain.post.repository.PostImageRepository;
 import NotFound.next_campus.domain.post.repository.PostRepository;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,11 +49,9 @@ public class PostServiceImpl implements PostService {
     private static int PAGE_LIMIT = 3;
 
     @Override
-    public Long savePost(CreatePostDTO dto) {
+    public Long savePost(CreatePostDTO dto, CustomUserDetails userDetails) {
 
-        // 게시자
-        Member member = memberRepository.findById(dto.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        Member member = userDetails.getMember();
 
         Post post = Post.builder()
                 .member(member)
@@ -64,7 +64,7 @@ public class PostServiceImpl implements PostService {
         // 게시물 상태가 POLICE 인 경우
         if (Role.USER.equals(member.getRole())
                 && PostStatus.POLICE.equals(dto.getStatus())) {
-            throw new IllegalArgumentException("인계 상태 등록 권한이 없습니다.");
+            throw new AccessDeniedException("인계 상태 등록 권한이 없습니다.");
         }
 
         // 완료/미완료/인계
@@ -74,7 +74,7 @@ public class PostServiceImpl implements PostService {
         if (PostType.NOTICE.equals(dto.getType())
                 && !Role.ADMIN.equals(member.getRole())) {
 
-            throw new IllegalArgumentException("공지는 관리자만 등록할 수 있습니다.");
+            throw new AccessDeniedException("공지는 관리자만 등록할 수 있습니다.");
         }
 
         // 습득 게시물인 경우
@@ -97,27 +97,30 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void savePostImages(Long postId, List<MultipartFile> files) {
-
-        /* 권한 체크 로직 추가 */
+    public void savePostImages(Long postId, List<MultipartFile> files, CustomUserDetails userDetails) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다."));
+
+        if (!post.getMember().equals(userDetails.getMember()) &&
+                !Role.ADMIN.equals(userDetails.getRole())) {
+            throw new AccessDeniedException("해당 게시물에 대한 이미지 등록 권한이 없습니다.");
+        }
 
         saveImages(post, files);
     }
 
     @Override
-    public Long updatePost(Long postId, UpdatePostDTO dto) {
+    public Long updatePost(Long postId, UpdatePostDTO dto, CustomUserDetails userDetails) {
 
-        Member member = memberRepository.findById(dto.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        Member member = userDetails.getMember();
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다."));
 
-        if (Role.USER.equals(member.getRole()) &&
-                !post.getMember().equals(member)) {
-            throw new IllegalArgumentException("해당 게시물에 대한 수정 권한이 없습니다.");
+        // 해당 게시물의 작성자도 아니고, 관리자도 아닌 경우
+        if (!post.getMember().equals(member) &&
+                !Role.ADMIN.equals(member.getRole())) {
+            throw new AccessDeniedException("해당 게시물에 대한 수정 권한이 없습니다.");
         }
 
         if (dto.getLocationDetail() != null) post.setLocationDetail(dto.getLocationDetail());
@@ -138,9 +141,10 @@ public class PostServiceImpl implements PostService {
         // 게시물 상태 수정
         if (dto.getStatus() != null) {
 
+            // 일반 사용자는 인계 상태를 수정할 수 없음
             if (Role.USER.equals(member.getRole()) &&
                     PostStatus.POLICE.equals(dto.getStatus())) {
-                throw new IllegalArgumentException("인계 상태 수정 권한이 없습니다.");
+                throw new AccessDeniedException("인계 상태 수정 권한이 없습니다.");
             }
 
             post.setStatus(dto.getStatus());
@@ -149,9 +153,10 @@ public class PostServiceImpl implements PostService {
         // 게시물 유형 수정
         if (dto.getType() != null) {
 
+            // 일반 사용자는 공지를 게시할 수 없음
             if (Role.USER.equals(member.getRole()) &&
                     PostType.NOTICE.equals(dto.getType())) {
-                throw new IllegalArgumentException("공지 게시 권한이 없습니다.");
+                throw new AccessDeniedException("공지 게시 권한이 없습니다.");
             }
 
             post.setType(dto.getType());
@@ -171,12 +176,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void updatePostImages(Long postId, List<MultipartFile> files) {
-
-        /* 권한 체크 로직 추가 */
+    public void updatePostImages(Long postId, List<MultipartFile> files, CustomUserDetails userDetails) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다."));
+
+        if (!post.getMember().equals(userDetails.getMember()) &&
+                !Role.ADMIN.equals(userDetails.getRole())) {
+            throw new AccessDeniedException("해당 게시물 이미지에 대한 수정 권한이 없습니다.");
+        }
 
         List<PostImage> images = postImageRepository.findByPost(post);
 
@@ -185,10 +193,9 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void updateStatusOfPosts(UpdatePostStatusDTO dto) {
+    public void updateStatusOfPosts(UpdatePostStatusDTO dto, CustomUserDetails userDetails) {
 
-        Member member = memberRepository.findById(dto.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        Member member = userDetails.getMember();
 
         if (!Role.ADMIN.equals(member.getRole())) {
             throw new IllegalArgumentException("게시물 일괄 수정 권한이 없습니다.");
@@ -203,15 +210,13 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void deletePost(Long postId, Long memberId) {
+    public void deletePost(Long postId, CustomUserDetails userDetails) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다 ."));
 
-        if (Role.USER.equals(member.getRole()) &&
-                !post.getMember().equals(member)) {
+        if (!post.getMember().equals(userDetails.getMember()) &&
+                !Role.ADMIN.equals(userDetails.getRole())) {
             throw new IllegalArgumentException("해당 게시물에 대한 삭제 권한이 없습니다.");
         }
 
@@ -223,12 +228,9 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void deletePosts(List<Long> postIds, Long memberId) {
+    public void deletePosts(List<Long> postIds, CustomUserDetails userDetails) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-
-        if (!Role.ADMIN.equals(member.getRole())) {
+        if (!Role.ADMIN.equals(userDetails.getRole())) {
             throw new IllegalArgumentException("게시물 일괄 삭제 권한이 없습니다.");
         }
 

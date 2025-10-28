@@ -12,6 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeletePostDTO {
-    private Long memberId;
+    // private Long memberId;
     private List<Long> postIds;
 }
