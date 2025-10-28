@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdatePostStatusDTO {
-    private Long memberId;
+    // private Long memberId;
     private List<Long> postIds;
     private PostStatus status;
 }

@@ -7,6 +7,7 @@ import NotFound.next_campus.domain.post.dto.request.UpdatePostStatusDTO;
 import NotFound.next_campus.domain.post.dto.response.PostResponseDTO;
 import NotFound.next_campus.domain.post.model.PostStatus;
 import NotFound.next_campus.domain.post.model.PostType;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,19 +17,19 @@ import java.util.List;
 public interface PostService {
 
     /* 게시물 등록 */
-    Long savePost(CreatePostDTO dto);
-    void savePostImages(Long postId, List<MultipartFile> files);
+    Long savePost(CreatePostDTO dto, CustomUserDetails userDetails);
+    void savePostImages(Long postId, List<MultipartFile> files, CustomUserDetails userDetails);
 
     /* 게시물 수정 */
-    Long updatePost(Long postId, UpdatePostDTO dto);
-    void updatePostImages(Long postId, List<MultipartFile> files);
+    Long updatePost(Long postId, UpdatePostDTO dto, CustomUserDetails userDetails);
+    void updatePostImages(Long postId, List<MultipartFile> files, CustomUserDetails userDetails);
     /* 게시물 인계 여부 일괄 수정 */
-    void updateStatusOfPosts(UpdatePostStatusDTO dto);
+    void updateStatusOfPosts(UpdatePostStatusDTO dto, CustomUserDetails userDetails);
 
     /* 게시물 삭제 */
-    void deletePost(Long postId, Long memberId);
+    void deletePost(Long postId, CustomUserDetails userDetails);
     /* 게시물 일괄 삭제 */
-    void deletePosts(List<Long> postIds, Long memberId);
+    void deletePosts(List<Long> postIds, CustomUserDetails userDetails);
 
     /* 특정 게시물 내용 조회 */
     PostResponseDTO getPostById(Long postId);

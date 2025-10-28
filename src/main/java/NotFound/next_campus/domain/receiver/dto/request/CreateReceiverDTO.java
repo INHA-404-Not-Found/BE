@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateReceiverDTO {
-    private Long memberId;
+    // private Long memberId;
     private Long postId;
     private String name;
     private String email;
