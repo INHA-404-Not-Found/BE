@@ -102,11 +102,16 @@ public class PostServiceImpl implements PostService {
 
         savePostCategory(post, dto.getCategories());
 
-        // ✅ 분실물(isPersonal=true)인 경우, 해당 학생에게 이메일 발송
+        // 분실물(isPersonal=true)인 경우, 해당 학생에게 이메일 발송
         if (Boolean.TRUE.equals(post.getIsPersonal())) {
-            String studentEmail = member.getEmail(); // Member 엔티티에 이메일 필드가 있다고 가정
-            String studentName = member.getName();
-            mailService.sendPersonalLostEmail(studentEmail, studentName, post.getTitle(), post.getCreatedAt());
+            Member targetStudent = memberRepository.findByStudentId(Long.valueOf(post.getStudentId()))
+                    .orElseThrow(() -> new IllegalArgumentException("해당 학번의 학생을 찾을 수 없습니다."));
+            mailService.sendPersonalLostEmail(
+                    targetStudent.getEmail(),
+                    targetStudent.getName(),
+                    post.getTitle(),
+                    post.getCreatedAt()
+            );
         }
 
         return post.getId();
