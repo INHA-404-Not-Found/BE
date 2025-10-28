@@ -4,8 +4,10 @@ import NotFound.next_campus.domain.comment.dto.request.CreateCommentDTO;
 import NotFound.next_campus.domain.comment.dto.request.UpdateCommentDTO;
 import NotFound.next_campus.domain.comment.dto.response.CommentResponseDTO;
 import NotFound.next_campus.domain.comment.service.CommentService;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,9 +22,10 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> registerComment(
-            @RequestBody CreateCommentDTO request
+            @RequestBody CreateCommentDTO request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Long commentId = commentService.saveComment(request);
+        Long commentId = commentService.saveComment(request, userDetails);
 
         return ResponseEntity.ok().body(
                 Map.of(
@@ -35,9 +38,10 @@ public class CommentController {
     @PatchMapping("/{comment_id}")
     public ResponseEntity<String> updateComment(
             @PathVariable("comment_id") Long commentId,
-            @RequestBody UpdateCommentDTO request
+            @RequestBody UpdateCommentDTO request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        commentService.updateComment(commentId, request);
+        commentService.updateComment(commentId, request, userDetails);
 
         return ResponseEntity.ok().body(
                 "댓글 수정 성공"
@@ -46,9 +50,10 @@ public class CommentController {
 
     @DeleteMapping("/{comment_id}")
     public ResponseEntity<String> removeComment(
-            @PathVariable("comment_id") Long commentId
+            @PathVariable("comment_id") Long commentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        commentService.deleteComment(commentId);
+        commentService.deleteComment(commentId, userDetails);
 
         return ResponseEntity.ok().body(
                 "댓글 삭제 성공"
