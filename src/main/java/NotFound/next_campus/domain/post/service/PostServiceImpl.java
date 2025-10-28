@@ -85,6 +85,13 @@ public class PostServiceImpl implements PostService {
             Location location = locationRepository.findById(dto.getLocationId())
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장소입니다."));
 
+            // 개인 정보(학번)가 포함된 분실물인 경우
+            if (dto.getIsPersonal().equals(true) &&
+                    !dto.getStudentId().isEmpty()) {
+
+                post.setStudentId(dto.getStudentId());
+            }
+
             post.setLocation(location);                         // 발견 장소
             post.setLocationDetail(dto.getLocationDetail());    // 세부 발견 장소
             post.setStoredLocation(dto.getStoredLocation());    // 보관장소
@@ -137,6 +144,7 @@ public class PostServiceImpl implements PostService {
         if (dto.getContent() != null) post.setContent(dto.getContent());
         if (dto.getStoredLocation() != null) post.setStoredLocation(dto.getStoredLocation());
         if (dto.getIsPersonal() != null) post.setIsPersonal(dto.getIsPersonal());
+        if(dto.getStudentId() != null) post.setStudentId(dto.getStudentId());
 
         // 발견 위치 수정
         if (dto.getLocationId() != null) {

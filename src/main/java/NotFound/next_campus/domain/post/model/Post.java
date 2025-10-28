@@ -57,6 +57,9 @@ public class Post {
     @Column(name = "is_personal")
     private Boolean isPersonal;
 
+    @Column(name = "student_id")
+    private String studentId;
+
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
