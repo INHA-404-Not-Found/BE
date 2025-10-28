@@ -23,5 +23,6 @@ public class UpdatePostDTO {
     private PostStatus status;      // 완료 상태
     private PostType type;          // 게시물 유형(분실/습득/공지)
     private Boolean isPersonal;     // 개인정보 포함 여부
+    private String studentId;
     private List<Long> categories;  // 게시할 카테고리 목록
 }
