@@ -146,7 +146,6 @@ public class PostServiceImpl implements PostService {
         if (dto.getContent() != null) post.setContent(dto.getContent());
         if (dto.getStoredLocation() != null) post.setStoredLocation(dto.getStoredLocation());
         if (dto.getIsPersonal() != null) post.setIsPersonal(dto.getIsPersonal());
-        if (dto.getStudentId() != null) post.setStudentId(dto.getStudentId());
 
         // 발견 위치 수정
         if (dto.getLocationId() != null) {
