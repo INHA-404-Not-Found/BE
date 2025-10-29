@@ -1,0 +1,59 @@
+package NotFound.next_campus.domain.notification.api;
+
+import NotFound.next_campus.domain.notification.dto.request.CreateNotificationDTO;
+import NotFound.next_campus.domain.notification.dto.response.NotificationResponseDTO;
+import NotFound.next_campus.domain.notification.service.NotificationServiceImpl;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/notifications")
+public class NotificationController {
+
+    private final NotificationServiceImpl notificationService;
+
+    // 특정 유저에게 알림 발송
+    @PostMapping
+    public ResponseEntity<String> sendNotification(
+            @RequestBody CreateNotificationDTO request
+    ) {
+        notificationService.sendAndSaveNotification(request);
+
+        return ResponseEntity.ok().body(
+                "알림 저장 및 발송 성공"
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<List<NotificationResponseDTO>> getMyNotifications(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(page = 1) Pageable pageable,
+            @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo
+    ) {
+        pageNo = (pageNo == 0) ? 0 : pageNo - 1;
+
+        return ResponseEntity.ok().body(
+                notificationService.getNotifications(userDetails, pageable, pageNo)
+        );
+    }
+
+    @PatchMapping("/{notification_id}/read")
+    public ResponseEntity<String> readNotification(
+            @PathVariable("notification_id") Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        notificationService.markAsRead(id, userDetails);
+
+        return ResponseEntity.ok().body(
+                "알림 읽기 성공"
+        );
+    }
+}

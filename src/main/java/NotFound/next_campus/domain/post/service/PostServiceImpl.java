@@ -7,6 +7,8 @@ import NotFound.next_campus.domain.location.repository.LocationRepository;
 import NotFound.next_campus.domain.member.model.Member;
 import NotFound.next_campus.domain.member.model.Role;
 import NotFound.next_campus.domain.member.repository.MemberRepository;
+import NotFound.next_campus.domain.notification.dto.request.CreateNotificationDTO;
+import NotFound.next_campus.domain.notification.service.NotificationServiceImpl;
 import NotFound.next_campus.domain.post.dto.request.CreatePostDTO;
 import NotFound.next_campus.domain.post.dto.request.UpdatePostDTO;
 import NotFound.next_campus.domain.post.dto.request.UpdatePostStatusDTO;
@@ -18,6 +20,7 @@ import NotFound.next_campus.domain.post.repository.PostRepository;
 import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import NotFound.next_campus.global.mail.service.MailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional
 public class PostServiceImpl implements PostService {
 
@@ -48,7 +52,9 @@ public class PostServiceImpl implements PostService {
     private final PostCategoryRepository postCategoryRepository;
     private final PostImageRepository postImageRepository;
 
-    private static int PAGE_LIMIT = 3;
+    private final NotificationServiceImpl notificationService;
+
+    private static int PAGE_LIMIT = 10;
 
     @Override
     public Long savePost(CreatePostDTO dto, CustomUserDetails userDetails) {
@@ -102,6 +108,11 @@ public class PostServiceImpl implements PostService {
 
         savePostCategory(post, dto.getCategories());
 
+        // 습득 게시물인 경우, 동일 카테고리의 분실 신고자 목록에 알림 전송
+        if(PostType.FIND.equals(post.getType())) {
+            sendLostPostMatchNotification(post);
+        }
+
         // 분실물(isPersonal=true)인 경우, 해당 학생에게 이메일 발송
         if (Boolean.TRUE.equals(post.getIsPersonal())) {
             Member targetStudent = memberRepository.findByStudentId(Long.valueOf(post.getStudentId()))
@@ -113,7 +124,7 @@ public class PostServiceImpl implements PostService {
                     post.getCreatedAt()
             );
         }
-
+      
         return post.getId();
     }
 
@@ -149,7 +160,6 @@ public class PostServiceImpl implements PostService {
         if (dto.getContent() != null) post.setContent(dto.getContent());
         if (dto.getStoredLocation() != null) post.setStoredLocation(dto.getStoredLocation());
         if (dto.getIsPersonal() != null) post.setIsPersonal(dto.getIsPersonal());
-        if(dto.getStudentId() != null) post.setStudentId(dto.getStudentId());
 
         // 발견 위치 수정
         if (dto.getLocationId() != null) {
@@ -425,5 +435,37 @@ public class PostServiceImpl implements PostService {
         if (oldFile.exists()) {
             oldFile.delete();
         }
+    }
+
+    // 신규 습득 게시물 등록 시, 같은 카테고리의 분실 신고자들에게 알림 전송
+    private void sendLostPostMatchNotification(Post findPost) {
+
+        // 등록된 습득 게시물의 카테고리 목록
+        List<Long> categoryIds = postCategoryRepository.findCategoryIdsByPostId(findPost.getId());
+
+        // 해당 카테고리 목록에 속하는 분실 신고자 목록(분실 신고이면서, 카테고리 목록이 하나라도 겹치면서, 미완료인 분실 신고건)
+        List<Member> targetMembers = postRepository.findDistinctMembersByCategoryIdsAndType(
+                categoryIds, PostType.LOST, PostStatus.UNCOMPLETED);
+
+        if (targetMembers.isEmpty()) {
+            log.info("[알림 없음] 일치하는 분실 게시물이 없습니다.");
+            return;
+        }
+
+        String title = "습득 게시물 등록 알림";
+        String message = "회원님의 분실물 카테고리와 일치하는 습득 게시물이 등록되었습니다.";
+        String link = "/post/" + findPost.getId();
+
+        for (Member lostMember : targetMembers) {
+
+            notificationService.sendAndSaveNotification(CreateNotificationDTO.builder()
+                    .memberId(lostMember.getId())
+                    .title(title)
+                    .message(message)
+                    .link(link)
+                    .build());
+        }
+
+        log.info("[알림 전송 완료] 관련 분실자 수: {}", targetMembers.size());
     }
 }
