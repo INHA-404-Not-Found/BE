@@ -19,4 +19,9 @@ public interface PostCategoryRepository extends JpaRepository<PostCategory, Long
             "JOIN FETCH pc.category " +
             "WHERE pc.post IN :posts")
     List<PostCategory> findAllByPosts(@Param("posts") List<Post> posts);
+
+    /* 특정 게시물의 카테고리 목록 조회 */
+    @Query("SELECT pc.category.id FROM PostCategory pc " +
+            "WHERE pc.post.id = :postId")
+    List<Long> findCategoryIdsByPostId(@Param("postId") Long postId);
 }

@@ -1,5 +1,6 @@
 package NotFound.next_campus.domain.post.repository;
 
+import NotFound.next_campus.domain.member.model.Member;
 import NotFound.next_campus.domain.post.model.Post;
 import NotFound.next_campus.domain.post.model.PostStatus;
 import NotFound.next_campus.domain.post.model.PostType;
@@ -34,4 +35,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "OR p.content LIKE CONCAT('%', :keyword, '%')")
     Page<Post> findAllSearch(@Param("keyword") String keyword,
                              Pageable pageable);
+
+    /* 특정 카테고리 목록에 속하는 분실 신고 게시물 작성자 목록 조회 */
+    @Query("SELECT DISTINCT pc.post.member " +
+            "FROM PostCategory pc " +
+            "WHERE pc.category.id IN :categoryIds " +
+            "AND pc.post.type = :type " +
+            "AND pc.post.status = :status")
+    List<Member> findDistinctMembersByCategoryIdsAndType(@Param("categoryIds") List<Long> categoryIds,
+                                                         @Param("type") PostType type,
+                                                         @Param("status") PostStatus status);
 }
