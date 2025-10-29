@@ -18,6 +18,7 @@ import NotFound.next_campus.domain.post.repository.PostCategoryRepository;
 import NotFound.next_campus.domain.post.repository.PostImageRepository;
 import NotFound.next_campus.domain.post.repository.PostRepository;
 import NotFound.next_campus.global.auth.user.CustomUserDetails;
+import NotFound.next_campus.global.mail.service.MailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -43,6 +44,7 @@ public class PostServiceImpl implements PostService {
     private final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/";
 
     private final MemberRepository memberRepository;
+    private final MailService mailService;
     private final LocationRepository locationRepository;
     private final CategoryRepository categoryRepository;
 
@@ -110,7 +112,19 @@ public class PostServiceImpl implements PostService {
         if(PostType.FIND.equals(post.getType())) {
             sendLostPostMatchNotification(post);
         }
-        
+
+        // 분실물(isPersonal=true)인 경우, 해당 학생에게 이메일 발송
+        if (Boolean.TRUE.equals(post.getIsPersonal())) {
+            Member targetStudent = memberRepository.findByStudentId(Long.valueOf(post.getStudentId()))
+                    .orElseThrow(() -> new IllegalArgumentException("해당 학번의 학생을 찾을 수 없습니다."));
+            mailService.sendPersonalLostEmail(
+                    targetStudent.getEmail(),
+                    targetStudent.getName(),
+                    post.getTitle(),
+                    post.getCreatedAt()
+            );
+        }
+      
         return post.getId();
     }
 

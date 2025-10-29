@@ -43,6 +43,10 @@ dependencies {
 
 	// Firebase
 	implementation 'com.google.firebase:firebase-admin:9.1.1' // 버전은 최신으로 확인
+  
+	// 이메일 전송 관련
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }
 
 tasks.named('test') {
