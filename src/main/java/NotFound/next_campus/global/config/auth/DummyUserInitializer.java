@@ -14,20 +14,37 @@ public class DummyUserInitializer {
     @Bean
     CommandLineRunner initDummyUser(MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            if (memberRepository.findByStudentId(12234063L).isEmpty()) {
+            if (memberRepository.findByStudentId(00000001L).isEmpty()) {
                 Member user = Member.builder()
-                        .studentId(12234063L)
-                        .name("doyeon")
-                        .email("doyun20445@gmail.com")
-                        .department("CS")
-                        .role(Role.valueOf("ADMIN"))
+                        .studentId(00000001L)
+                        .name("admin2")
+                        .email("admin2@gmail.com")
+                        .department("none")
+                        .role(Role.ADMIN)
                         .password(passwordEncoder.encode("1234"))
                         .build();
 
                 memberRepository.save(user);
-                System.out.println("Dummy user created successfully!");
+                System.out.println("Dummy ADMIN created successfully!");
             } else {
-                System.out.println("Dummy user already exists, skipping initialization.");
+                System.out.println("Dummy ADMIN already exists, skipping initialization.");
+            }
+
+            // 일반 USER 계정 생성
+            if (memberRepository.findByStudentId(20231234L).isEmpty()) {
+                Member user = Member.builder()
+                        .studentId(20231234L)
+                        .name("studentA")
+                        .email("studentA@inha.ac.kr")
+                        .department("Software")
+                        .role(Role.USER)
+                        .password(passwordEncoder.encode("1234"))
+                        .build();
+
+                memberRepository.save(user);
+                System.out.println("Dummy USER account created successfully!");
+            } else {
+                System.out.println("Dummy USER already exists, skipping initialization.");
             }
         };
     }
