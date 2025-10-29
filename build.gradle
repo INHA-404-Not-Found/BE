@@ -40,6 +40,9 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// Firebase
+	implementation 'com.google.firebase:firebase-admin:9.1.1' // 버전은 최신으로 확인
 }
 
 tasks.named('test') {
