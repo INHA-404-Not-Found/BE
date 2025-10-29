@@ -59,3 +59,6 @@ ALTER TABLE receiver ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP O
 
 ALTER TABLE post DROP COLUMN original_file_name;
 ALTER TABLE post DROP COLUMN stored_file_name;
+
+# 알림을 누르면 이동할 링크 필드 추가
+ALTER TABLE notification ADD column link varchar(255) after message;
