@@ -37,7 +37,7 @@ public class LocationController {
     }
 
     // 위치 수정
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<LocationResponseDTO> updateLocation(@PathVariable Long id,
                                                               @RequestBody LocationRequestDTO requestDTO, @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(locationService.updateLocation(id, requestDTO, userDetails));
