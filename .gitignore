@@ -25,8 +25,19 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+target/
 application.properties
+application-local.properties
 uploads
+
+### Firebase credentials ###
+src/main/resources/firebase/*.json
+
+### 환경변수 파일 ###
+.env
+
+### SSL key files ###
+*.p12
 
 ### NetBeans ###
 /nbproject/private/

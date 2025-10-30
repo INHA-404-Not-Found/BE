@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 
 @Slf4j
@@ -20,13 +21,18 @@ public class FirebaseConfig {
 
     @Bean
     public FirebaseApp firebaseApp() {
-        try {
-            FirebaseOptions options = FirebaseOptions.builder()
+        try(FileInputStream serviceAccount = new FileInputStream(SERVICE_ACCOUNT_PATH)) {
+
+            /*FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(
                             GoogleCredentials.fromStream(
                                     new ClassPathResource(SERVICE_ACCOUNT_PATH).getInputStream()
                             )
                     )
+                    .build();*/
+
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
 
             log.info("Successfully initialized firebase app");
