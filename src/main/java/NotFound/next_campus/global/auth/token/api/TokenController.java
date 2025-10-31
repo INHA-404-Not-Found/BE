@@ -1,15 +1,20 @@
 package NotFound.next_campus.global.auth.token.api;
 
+import NotFound.next_campus.domain.member.model.Member;
 import NotFound.next_campus.global.auth.token.dto.request.LoginRequest;
 import NotFound.next_campus.global.auth.token.dto.response.LoginResponse;
 import NotFound.next_campus.global.auth.token.dto.request.RefreshRequest;
+import NotFound.next_campus.global.auth.token.dto.response.ProfileResponse;
 import NotFound.next_campus.global.auth.token.service.JwtTokenProvider;
+import NotFound.next_campus.global.auth.token.service.MemberAuthService;
 import NotFound.next_campus.global.auth.token.service.TokenService;
 import NotFound.next_campus.global.auth.token.service.TokenService.LoginTokens;
+import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 
 /**
@@ -23,10 +28,12 @@ import org.springframework.web.bind.annotation.*;
 public class TokenController {
     private final TokenService tokenService;
     private final JwtTokenProvider tokenProvider;
+    private final MemberAuthService memberAuthService;
 
-    public TokenController(TokenService tokenService, JwtTokenProvider tokenProvider) {
+    public TokenController(TokenService tokenService, JwtTokenProvider tokenProvider, MemberAuthService memberAuthService) {
         this.tokenService = tokenService;
         this.tokenProvider = tokenProvider;
+        this.memberAuthService = memberAuthService;
     }
 
 
@@ -82,4 +89,11 @@ public class TokenController {
 
         return ResponseEntity.ok().body("logged out");
     }
+
+    @GetMapping("/profile")
+    public ResponseEntity<ProfileResponse> getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        ProfileResponse profile = memberAuthService.getProfile(userDetails);
+        return ResponseEntity.ok(profile);
+    }
+
 }
