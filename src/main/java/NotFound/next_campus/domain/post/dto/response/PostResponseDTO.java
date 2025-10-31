@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -27,6 +28,7 @@ public class PostResponseDTO {
     private PostType type;
     private Boolean isPersonal;
     private List<String> categories;
+    private LocalDateTime createdAt;
 
     public static PostResponseDTO from(Post post, List<String> categories, List<String> images) {
 
@@ -45,6 +47,7 @@ public class PostResponseDTO {
                 .type(post.getType())
                 .isPersonal(post.getIsPersonal())
                 .categories(categories)
+                .createdAt(post.getCreatedAt())
                 .build();
     }
 }
