@@ -2,6 +2,7 @@ package NotFound.next_campus.global.auth.token.service;
 
 import NotFound.next_campus.domain.member.model.Member;
 import NotFound.next_campus.domain.member.repository.MemberRepository;
+import NotFound.next_campus.global.auth.token.dto.response.ProfileResponse;
 import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -84,5 +85,17 @@ public class MemberAuthService implements UserDetailsService {
         return memberRepository.findByStudentId(studentId)
                 .map(member -> member.getRole().name())
                 .orElse("USER");  // 기본값 USER
+    }
+
+    public ProfileResponse getProfile(CustomUserDetails userDetails) {
+        Member member = userDetails.getMember();
+
+        return new ProfileResponse(
+                member.getStudentId(),
+                member.getName(),
+                member.getEmail(),
+                member.getDepartment(),
+                member.getRole().name()
+        );
     }
 }
