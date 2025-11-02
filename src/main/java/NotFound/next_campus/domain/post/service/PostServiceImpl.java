@@ -92,7 +92,8 @@ public class PostServiceImpl implements PostService {
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장소입니다."));
 
             // 개인 정보(학번)가 포함된 분실물인 경우
-            if (dto.getIsPersonal().equals(true) &&
+            if (Boolean.TRUE.equals(dto.getIsPersonal()) &&
+                    dto.getStudentId() != null &&
                     !dto.getStudentId().isEmpty()) {
 
                 post.setStudentId(dto.getStudentId());
