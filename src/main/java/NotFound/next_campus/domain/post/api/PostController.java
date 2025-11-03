@@ -168,4 +168,17 @@ public class PostController {
                 postService.getPostsByKeyword(keyword, pageable, pageNo)
         );
     }
+
+    @GetMapping("my")
+    public ResponseEntity<List<PostResponseDTO>> getMyPosts(
+            @PageableDefault(page = 1) Pageable pageable,
+            @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        pageNo = (pageNo == 0) ? 0 : pageNo - 1;
+
+        return ResponseEntity.ok().body(
+                postService.getMyPosts(pageable, pageNo, userDetails)
+        );
+    }
 }
