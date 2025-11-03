@@ -1,8 +1,6 @@
 package NotFound.next_campus.domain.comment.api;
 
-import NotFound.next_campus.domain.comment.dto.request.CreateCommentDTO;
-import NotFound.next_campus.domain.comment.dto.request.UpdateCommentDTO;
-import NotFound.next_campus.domain.comment.dto.response.CommentResponseDTO;
+import NotFound.next_campus.domain.comment.dto.CommentDTO;
 import NotFound.next_campus.domain.comment.service.CommentService;
 import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,7 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> registerComment(
-            @RequestBody CreateCommentDTO request,
+            @RequestBody CommentDTO.CreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long commentId = commentService.saveComment(request, userDetails);
@@ -38,7 +36,7 @@ public class CommentController {
     @PatchMapping("/{comment_id}")
     public ResponseEntity<String> updateComment(
             @PathVariable("comment_id") Long commentId,
-            @RequestBody UpdateCommentDTO request,
+            @RequestBody CommentDTO.UpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         commentService.updateComment(commentId, request, userDetails);
@@ -61,7 +59,7 @@ public class CommentController {
     }
 
     @GetMapping("/{post_id}")
-    public ResponseEntity<List<CommentResponseDTO>> getComments(
+    public ResponseEntity<List<CommentDTO.Response>> getComments(
             @PathVariable("post_id") Long postId
     ) {
         return ResponseEntity.ok().body(

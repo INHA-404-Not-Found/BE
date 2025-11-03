@@ -1,16 +1,11 @@
 package NotFound.next_campus.domain.post.api;
 
-import NotFound.next_campus.domain.post.dto.request.CreatePostDTO;
-import NotFound.next_campus.domain.post.dto.request.DeletePostDTO;
-import NotFound.next_campus.domain.post.dto.request.UpdatePostDTO;
-import NotFound.next_campus.domain.post.dto.request.UpdatePostStatusDTO;
-import NotFound.next_campus.domain.post.dto.response.PostResponseDTO;
+import NotFound.next_campus.domain.post.dto.PostDTO;
 import NotFound.next_campus.domain.post.model.PostStatus;
 import NotFound.next_campus.domain.post.model.PostType;
 import NotFound.next_campus.domain.post.service.PostService;
 import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +25,7 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> registerPost(
-            @RequestBody CreatePostDTO request,
+            @RequestBody PostDTO.CreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
             ) {
         Long postId = postService.savePost(request, userDetails);
@@ -59,7 +54,7 @@ public class PostController {
     @PatchMapping("/{post_id}")
     public ResponseEntity<String> modifyPost(
             @PathVariable("post_id") Long postId,
-            @RequestBody UpdatePostDTO request,
+            @RequestBody PostDTO.UpdateContentRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         postService.updatePost(postId, request, userDetails);
@@ -84,7 +79,7 @@ public class PostController {
 
     @PatchMapping("/update")
     public ResponseEntity<String> modifyPosts(
-            @RequestBody UpdatePostStatusDTO request,
+            @RequestBody PostDTO.UpdateStatusRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         postService.updateStatusOfPosts(request, userDetails);
@@ -108,7 +103,7 @@ public class PostController {
 
     @PostMapping("/delete")
     public ResponseEntity<String> removePosts(
-            @RequestBody DeletePostDTO request,
+            @RequestBody PostDTO.DeleteRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         postService.deletePosts(request.getPostIds(), userDetails);
@@ -119,7 +114,7 @@ public class PostController {
     }
 
     @GetMapping("/{post_id}")
-    public ResponseEntity<PostResponseDTO> getPost(
+    public ResponseEntity<PostDTO.Response> getPost(
             @PathVariable("post_id") Long postId
     ) {
         return ResponseEntity.ok().body(
@@ -128,7 +123,7 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostResponseDTO>> getAllPosts(
+    public ResponseEntity<List<PostDTO.Response>> getAllPosts(
             @PageableDefault(page = 1) Pageable pageable,
             @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo
     ) {
@@ -140,7 +135,7 @@ public class PostController {
     }
 
     @GetMapping("tags")
-    public ResponseEntity<List<PostResponseDTO>> getPostsByTags(
+    public ResponseEntity<List<PostDTO.Response>> getPostsByTags(
             @RequestParam(value = "status", required = false) PostStatus status,
             @RequestParam(value = "type", required = false) PostType type,
             @RequestParam(value = "location_id", required = false) Long locationId,
@@ -157,7 +152,7 @@ public class PostController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<PostResponseDTO>> getPostsByKeyword(
+    public ResponseEntity<List<PostDTO.Response>> getPostsByKeyword(
             @RequestParam("keyword") String keyword,
             @PageableDefault(page = 1) Pageable pageable,
             @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo
@@ -170,7 +165,7 @@ public class PostController {
     }
 
     @GetMapping("my")
-    public ResponseEntity<List<PostResponseDTO>> getMyPosts(
+    public ResponseEntity<List<PostDTO.Response>> getMyPosts(
             @PageableDefault(page = 1) Pageable pageable,
             @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo,
             @AuthenticationPrincipal CustomUserDetails userDetails

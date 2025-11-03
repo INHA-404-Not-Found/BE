@@ -1,8 +1,6 @@
 package NotFound.next_campus.domain.comment.service;
 
-import NotFound.next_campus.domain.comment.dto.request.CreateCommentDTO;
-import NotFound.next_campus.domain.comment.dto.request.UpdateCommentDTO;
-import NotFound.next_campus.domain.comment.dto.response.CommentResponseDTO;
+import NotFound.next_campus.domain.comment.dto.CommentDTO;
 import NotFound.next_campus.domain.comment.model.Comment;
 import NotFound.next_campus.domain.comment.repository.CommentRepository;
 import NotFound.next_campus.domain.member.model.Member;
@@ -28,7 +26,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
 
     @Override
-    public Long saveComment(CreateCommentDTO dto, CustomUserDetails userDetails) {
+    public Long saveComment(CommentDTO.CreateRequest dto, CustomUserDetails userDetails) {
 
         Member member = userDetails.getMember();
         Post post = postRepository.findById(dto.getPostId())
@@ -44,7 +42,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void updateComment(Long commentId, UpdateCommentDTO dto, CustomUserDetails userDetails) {
+    public void updateComment(Long commentId, CommentDTO.UpdateRequest dto, CustomUserDetails userDetails) {
 
         Member member = userDetails.getMember();
         Comment comment = commentRepository.findById(commentId)
@@ -75,13 +73,13 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentResponseDTO> getCommentsByPost(Long postId) {
+    public List<CommentDTO.Response> getCommentsByPost(Long postId) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다."));
 
         return commentRepository.findByPost(post).stream()
-                .map(CommentResponseDTO::from)
+                .map(CommentDTO.Response::from)
                 .toList();
     }
 }

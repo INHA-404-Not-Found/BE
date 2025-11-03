@@ -5,9 +5,7 @@ import NotFound.next_campus.domain.member.model.Role;
 import NotFound.next_campus.domain.member.repository.MemberRepository;
 import NotFound.next_campus.domain.post.model.Post;
 import NotFound.next_campus.domain.post.repository.PostRepository;
-import NotFound.next_campus.domain.receiver.dto.request.CreateReceiverDTO;
-import NotFound.next_campus.domain.receiver.dto.request.UpdateReceiverDTO;
-import NotFound.next_campus.domain.receiver.dto.response.ReceiverResponseDTO;
+import NotFound.next_campus.domain.receiver.dto.ReceiverDTO;
 import NotFound.next_campus.domain.receiver.model.Receiver;
 import NotFound.next_campus.domain.receiver.repository.ReceiverRepository;
 import NotFound.next_campus.global.auth.user.CustomUserDetails;
@@ -29,7 +27,7 @@ public class ReceiverServiceImpl implements ReceiverService {
     private final ReceiverRepository receiverRepository;
 
     @Override
-    public Long saveReceiver(CreateReceiverDTO dto, CustomUserDetails userDetails) {
+    public Long saveReceiver(ReceiverDTO.CreateRequest dto, CustomUserDetails userDetails) {
 
         Member member = userDetails.getMember();
 
@@ -52,7 +50,7 @@ public class ReceiverServiceImpl implements ReceiverService {
     }
 
     @Override
-    public void updateReceiver(Long receiverId, UpdateReceiverDTO dto, CustomUserDetails userDetails) {
+    public void updateReceiver(Long receiverId, ReceiverDTO.UpdateRequest dto, CustomUserDetails userDetails) {
 
         Member member = userDetails.getMember();
 
@@ -83,7 +81,7 @@ public class ReceiverServiceImpl implements ReceiverService {
     }
 
     @Override
-    public ReceiverResponseDTO getReceiverInfo(Long receiverId, CustomUserDetails userDetails) {
+    public ReceiverDTO.Response getReceiverInfo(Long receiverId, CustomUserDetails userDetails) {
 
         if(!Role.ADMIN.equals(userDetails.getRole())) {
             throw new AccessDeniedException("수령인 조회 권한이 없습니다.");
@@ -92,11 +90,11 @@ public class ReceiverServiceImpl implements ReceiverService {
         Receiver receiver = receiverRepository.findById(receiverId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 수령인입니다."));
 
-        return ReceiverResponseDTO.from(receiver);
+        return ReceiverDTO.Response.from(receiver);
     }
 
     @Override
-    public ReceiverResponseDTO getReceiverByPost(Long postId, CustomUserDetails userDetails) {
+    public ReceiverDTO.Response getReceiverByPost(Long postId, CustomUserDetails userDetails) {
 
         if(!Role.ADMIN.equals(userDetails.getRole())) {
             throw new AccessDeniedException("수령인 조회 권한이 없습니다.");
@@ -109,21 +107,21 @@ public class ReceiverServiceImpl implements ReceiverService {
 
         if(receiver.isPresent()) {
 
-            return ReceiverResponseDTO.from(receiver.get());
+            return ReceiverDTO.Response.from(receiver.get());
         }
 
-        return ReceiverResponseDTO.builder().build();
+        return ReceiverDTO.Response.builder().build();
     }
 
     @Override
-    public List<ReceiverResponseDTO> getAllReceivers(CustomUserDetails userDetails) {
+    public List<ReceiverDTO.Response> getAllReceivers(CustomUserDetails userDetails) {
 
         if(!Role.ADMIN.equals(userDetails.getRole())) {
             throw new AccessDeniedException("수령인 조회 권한이 없습니다.");
         }
         
         return receiverRepository.findAll().stream()
-                .map(ReceiverResponseDTO::from)
+                .map(ReceiverDTO.Response::from)
                 .toList();
     }
 }

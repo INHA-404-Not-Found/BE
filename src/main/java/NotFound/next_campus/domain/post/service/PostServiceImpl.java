@@ -9,10 +9,7 @@ import NotFound.next_campus.domain.member.model.Role;
 import NotFound.next_campus.domain.member.repository.MemberRepository;
 import NotFound.next_campus.domain.notification.dto.request.CreateNotificationDTO;
 import NotFound.next_campus.domain.notification.service.NotificationServiceImpl;
-import NotFound.next_campus.domain.post.dto.request.CreatePostDTO;
-import NotFound.next_campus.domain.post.dto.request.UpdatePostDTO;
-import NotFound.next_campus.domain.post.dto.request.UpdatePostStatusDTO;
-import NotFound.next_campus.domain.post.dto.response.PostResponseDTO;
+import NotFound.next_campus.domain.post.dto.PostDTO;
 import NotFound.next_campus.domain.post.model.*;
 import NotFound.next_campus.domain.post.repository.PostCategoryRepository;
 import NotFound.next_campus.domain.post.repository.PostImageRepository;
@@ -57,7 +54,7 @@ public class PostServiceImpl implements PostService {
     private static int PAGE_LIMIT = 10;
 
     @Override
-    public Long savePost(CreatePostDTO dto, CustomUserDetails userDetails) {
+    public Long savePost(PostDTO.CreateRequest dto, CustomUserDetails userDetails) {
 
         Member member = userDetails.getMember();
 
@@ -144,7 +141,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Long updatePost(Long postId, UpdatePostDTO dto, CustomUserDetails userDetails) {
+    public Long updatePost(Long postId, PostDTO.UpdateContentRequest dto, CustomUserDetails userDetails) {
 
         Member member = userDetails.getMember();
         Post post = postRepository.findById(postId)
@@ -226,7 +223,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void updateStatusOfPosts(UpdatePostStatusDTO dto, CustomUserDetails userDetails) {
+    public void updateStatusOfPosts(PostDTO.UpdateStatusRequest dto, CustomUserDetails userDetails) {
 
         Member member = userDetails.getMember();
 
@@ -271,7 +268,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponseDTO getPostById(Long postId) {
+    public PostDTO.Response getPostById(Long postId) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물입니다 ."));
@@ -284,12 +281,12 @@ public class PostServiceImpl implements PostService {
                 .map(pi -> "/uploads/" + pi.getStoredFileName())
                 .toList();
 
-        return PostResponseDTO.from(post, categories, images);
+        return PostDTO.Response.from(post, categories, images);
     }
 
     /* 전체 조회 */
     @Override
-    public List<PostResponseDTO> getAllPostList(Pageable pageable, int pageNo) {
+    public List<PostDTO.Response> getAllPostList(Pageable pageable, int pageNo) {
 
         pageable = PageRequest.of(pageNo, PAGE_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt"));
 
@@ -303,7 +300,7 @@ public class PostServiceImpl implements PostService {
 
     /* 필터링 검색 */
     @Override
-    public List<PostResponseDTO> getPostsByTags(PostStatus status, PostType type,
+    public List<PostDTO.Response> getPostsByTags(PostStatus status, PostType type,
                                                 Long locationId, Long categoryId,
                                                 Pageable pageable, int pageNo) {
 
@@ -318,7 +315,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PostResponseDTO> getPostsByKeyword(String keyword, Pageable pageable, int pageNo) {
+    public List<PostDTO.Response> getPostsByKeyword(String keyword, Pageable pageable, int pageNo) {
 
         pageable = PageRequest.of(pageNo, PAGE_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt"));
 
@@ -331,7 +328,7 @@ public class PostServiceImpl implements PostService {
 
 
     @Override
-    public List<PostResponseDTO> getMyPosts(Pageable pageable, int pageNo, CustomUserDetails userDetails) {
+    public List<PostDTO.Response> getMyPosts(Pageable pageable, int pageNo, CustomUserDetails userDetails) {
 
         pageable = PageRequest.of(pageNo, PAGE_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt"));
 
@@ -342,9 +339,9 @@ public class PostServiceImpl implements PostService {
         return getPostResponses(posts);
     }
 
-    private List<PostResponseDTO> getPostResponses(List<Post> posts) {
+    private List<PostDTO.Response> getPostResponses(List<Post> posts) {
 
-        List<PostResponseDTO> responses = new ArrayList<>();
+        List<PostDTO.Response> responses = new ArrayList<>();
 
         // 전체 게시물의 카테고리 목록 가져오기
         List<PostCategory> categories = postCategoryRepository.findAllByPosts(posts);
@@ -371,7 +368,7 @@ public class PostServiceImpl implements PostService {
         for (Post p : posts) {
             List<String> categoriesOfPost = allPostCategories.getOrDefault(p.getId(), List.of());
             List<String> imagesOfPost = allPostImages.getOrDefault(p.getId(), List.of());
-            responses.add(PostResponseDTO.from(p, categoriesOfPost, imagesOfPost));
+            responses.add(PostDTO.Response.from(p, categoriesOfPost, imagesOfPost));
         }
 
         return responses;
