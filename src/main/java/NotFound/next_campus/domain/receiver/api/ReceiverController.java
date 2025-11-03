@@ -1,8 +1,6 @@
 package NotFound.next_campus.domain.receiver.api;
 
-import NotFound.next_campus.domain.receiver.dto.request.CreateReceiverDTO;
-import NotFound.next_campus.domain.receiver.dto.request.UpdateReceiverDTO;
-import NotFound.next_campus.domain.receiver.dto.response.ReceiverResponseDTO;
+import NotFound.next_campus.domain.receiver.dto.ReceiverDTO;
 import NotFound.next_campus.domain.receiver.service.ReceiverService;
 import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,7 @@ public class ReceiverController {
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> registerReceiver(
-            @RequestBody CreateReceiverDTO request,
+            @RequestBody ReceiverDTO.CreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
             ) {
         Long receiverId = receiverService.saveReceiver(request, userDetails);
@@ -38,7 +36,7 @@ public class ReceiverController {
     @PatchMapping("/{receiver_id}")
     public ResponseEntity<String> updateReceiver(
             @PathVariable("receiver_id") Long receiverId,
-            @RequestBody UpdateReceiverDTO request,
+            @RequestBody ReceiverDTO.UpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         receiverService.updateReceiver(receiverId, request, userDetails);
@@ -62,7 +60,7 @@ public class ReceiverController {
 
     /* 특정 수령인 조회 */
     @GetMapping("/{receiver_id}")
-    public ResponseEntity<ReceiverResponseDTO> getReceiver(
+    public ResponseEntity<ReceiverDTO.Response> getReceiver(
             @PathVariable("receiver_id") Long receiverId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
@@ -73,7 +71,7 @@ public class ReceiverController {
 
     /* 특정 게시물의 수령인 조회 */
     @GetMapping("/posts/{post_id}")
-    public ResponseEntity<ReceiverResponseDTO> getReceiverByPost(
+    public ResponseEntity<ReceiverDTO.Response> getReceiverByPost(
             @PathVariable("post_id") Long postId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
@@ -84,7 +82,7 @@ public class ReceiverController {
 
     /* 모든 수령인 목록 조회 */
     @GetMapping
-    public ResponseEntity<List<ReceiverResponseDTO>> getAllReceivers(
+    public ResponseEntity<List<ReceiverDTO.Response>> getAllReceivers(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         return ResponseEntity.ok().body(
