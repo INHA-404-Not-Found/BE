@@ -329,6 +329,19 @@ public class PostServiceImpl implements PostService {
         return getPostResponses(posts);
     }
 
+
+    @Override
+    public List<PostResponseDTO> getMyPosts(Pageable pageable, int pageNo, CustomUserDetails userDetails) {
+
+        pageable = PageRequest.of(pageNo, PAGE_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Post> postPage = postRepository.findByMember(userDetails.getMember(), pageable);
+
+        List<Post> posts = postPage.getContent();
+
+        return getPostResponses(posts);
+    }
+
     private List<PostResponseDTO> getPostResponses(List<Post> posts) {
 
         List<PostResponseDTO> responses = new ArrayList<>();
@@ -455,7 +468,7 @@ public class PostServiceImpl implements PostService {
 
         String title = "습득 게시물 등록 알림";
         String message = "회원님의 분실물 카테고리와 일치하는 습득 게시물이 등록되었습니다.";
-        String link = "/post/" + findPost.getId();
+        String link = "/posts/" + findPost.getId();
 
         for (Member lostMember : targetMembers) {
 

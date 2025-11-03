@@ -43,4 +43,7 @@ public interface PostService {
 
     /* 게시물 키워드 검색 */
     List<PostResponseDTO> getPostsByKeyword(String keyword, Pageable pageable, int pageNo);
+
+    /* 내가 올린 게시물 목록 조회 */
+    List<PostResponseDTO> getMyPosts(Pageable pageable, int pageNo, CustomUserDetails userDetails);
 }

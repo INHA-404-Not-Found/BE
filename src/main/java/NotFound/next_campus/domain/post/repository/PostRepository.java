@@ -16,6 +16,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Page<Post> findAll(Pageable pageable);
 
+    Page<Post> findByMember(Member member,
+                            Pageable pageable);
+
     @Query("SELECT DISTINCT p FROM Post p " +
             "WHERE (:status IS NULL or p.status = :status) " +
             "AND (:type IS NULL or p.type = :type) " +
