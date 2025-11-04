@@ -44,8 +44,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "FROM PostCategory pc " +
             "WHERE pc.category.id IN :categoryIds " +
             "AND pc.post.type = :type " +
-            "AND pc.post.status = :status")
+            "AND pc.post.status = :status " +
+            "AND pc.post.member <> :member")
     List<Member> findDistinctMembersByCategoryIdsAndType(@Param("categoryIds") List<Long> categoryIds,
                                                          @Param("type") PostType type,
-                                                         @Param("status") PostStatus status);
+                                                         @Param("status") PostStatus status,
+                                                         @Param("member") Member member);
 }
