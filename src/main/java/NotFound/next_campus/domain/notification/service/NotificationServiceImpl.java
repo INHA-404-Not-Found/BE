@@ -2,13 +2,10 @@ package NotFound.next_campus.domain.notification.service;
 
 import NotFound.next_campus.domain.member.model.Member;
 import NotFound.next_campus.domain.member.repository.MemberRepository;
-import NotFound.next_campus.domain.notification.dto.request.CreateNotificationDTO;
-import NotFound.next_campus.domain.notification.dto.response.NotificationResponseDTO;
+import NotFound.next_campus.domain.notification.dto.NotificationDTO;
 import NotFound.next_campus.domain.notification.model.Notification;
 import NotFound.next_campus.domain.notification.repository.NotificationRepository;
 import NotFound.next_campus.global.auth.user.CustomUserDetails;
-import NotFound.next_campus.global.firebase.repository.FcmTokenRepository;
-import NotFound.next_campus.global.firebase.service.FirebaseMessagingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,23 +22,25 @@ import java.util.List;
 @Transactional
 @Slf4j
 @RequiredArgsConstructor
-public class NotificationServiceImpl {
+public class NotificationServiceImpl implements  NotificationService {
 
     private final MemberRepository memberRepository;
     private final NotificationRepository notificationRepository;
 
-    private final FcmTokenRepository fcmTokenRepository;
-    private final FirebaseMessagingService firebaseMessagingService;
+    // private final FcmTokenRepository fcmTokenRepository;
+    // private final FirebaseMessagingService firebaseMessagingService;
+    // private final ExpoPushService expoPushService;
 
     private static int PAGE_LIMIT = 10;
 
     // 특정 유저에게 알림 보냄
-    public void sendAndSaveNotification(CreateNotificationDTO dto) {
+    @Override
+    public void sendAndSaveNotification(NotificationDTO.CreateRequest dto) {
 
         Member member = memberRepository.findById(dto.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        // 해당 회원의 모든 FCM 토큰 조회
+        /*// 해당 회원의 모든 FCM 토큰 조회
         List<String> tokens = fcmTokenRepository.findTokensByMember(member);
 
         // FCM 토큰이 없는 경우 그냥 넘어감
@@ -50,14 +49,21 @@ public class NotificationServiceImpl {
             log.warn("[알림 전송 실패] memberId={} 의 FCM 토큰이 존재하지 않습니다.", member.getId());
             return;
         }
+*/
+       /* expoPushService.sendToMultiple(
+                tokens,
+                dto.getTitle(),
+                dto.getMessage(),
+                Map.of("link", dto.getLink() == null ? "" : dto.getLink())  // data
+        );*/
 
-        for (String token : tokens) {
+        /*for (String token : tokens) {
             firebaseMessagingService.sendNotification(
                     token,
                     dto.getTitle(),
                     dto.getMessage()
             );
-        }
+        }*/
 
         notificationRepository.save(
                 Notification.builder()
@@ -72,7 +78,8 @@ public class NotificationServiceImpl {
         log.info("[알림 저장 및 전송 성공] memberId={} ({})", member.getId(), dto.getTitle());
     }
 
-    public List<NotificationResponseDTO> getNotifications(CustomUserDetails userDetails, Pageable pageable, int pageNo) {
+    @Override
+    public List<NotificationDTO.Response> getNotifications(CustomUserDetails userDetails, Pageable pageable, int pageNo) {
 
         pageable = PageRequest.of(pageNo, PAGE_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt"));
 
@@ -81,10 +88,11 @@ public class NotificationServiceImpl {
         List<Notification> notifications = notificationPage.getContent();
 
         return notifications.stream()
-                .map(NotificationResponseDTO::toResponse)
+                .map(NotificationDTO.Response::toResponse)
                 .toList();
     }
 
+    @Override
     public void markAsRead(Long id, CustomUserDetails userDetails) {
 
         Notification notification = notificationRepository.findById(id)
@@ -96,6 +104,4 @@ public class NotificationServiceImpl {
 
         notification.setIsRead(true);
     }
-
-    /* 안읽은 알림 개수 조회 하는 함수 있으면 좋을듯 */
 }
