@@ -1,8 +1,7 @@
 package NotFound.next_campus.domain.notification.api;
 
-import NotFound.next_campus.domain.notification.dto.request.CreateNotificationDTO;
-import NotFound.next_campus.domain.notification.dto.response.NotificationResponseDTO;
-import NotFound.next_campus.domain.notification.service.NotificationServiceImpl;
+import NotFound.next_campus.domain.notification.dto.NotificationDTO;
+import NotFound.next_campus.domain.notification.service.NotificationService;
 import NotFound.next_campus.global.auth.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -18,22 +17,22 @@ import java.util.List;
 @RequestMapping("/notifications")
 public class NotificationController {
 
-    private final NotificationServiceImpl notificationService;
+    private final NotificationService notificationService;
 
     // 특정 유저에게 알림 발송
-    @PostMapping
+    /*@PostMapping
     public ResponseEntity<String> sendNotification(
-            @RequestBody CreateNotificationDTO request
+            @RequestBody NotificationDTO.CreateRequest request
     ) {
         notificationService.sendAndSaveNotification(request);
 
         return ResponseEntity.ok().body(
                 "알림 저장 및 발송 성공"
         );
-    }
+    }*/
 
     @GetMapping
-    public ResponseEntity<List<NotificationResponseDTO>> getMyNotifications(
+    public ResponseEntity<List<NotificationDTO.Response>> getMyNotifications(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(page = 1) Pageable pageable,
             @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo
