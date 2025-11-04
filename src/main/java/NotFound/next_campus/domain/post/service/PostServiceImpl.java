@@ -7,8 +7,8 @@ import NotFound.next_campus.domain.location.repository.LocationRepository;
 import NotFound.next_campus.domain.member.model.Member;
 import NotFound.next_campus.domain.member.model.Role;
 import NotFound.next_campus.domain.member.repository.MemberRepository;
-import NotFound.next_campus.domain.notification.dto.request.CreateNotificationDTO;
-import NotFound.next_campus.domain.notification.service.NotificationServiceImpl;
+import NotFound.next_campus.domain.notification.dto.NotificationDTO;
+import NotFound.next_campus.domain.notification.service.NotificationService;
 import NotFound.next_campus.domain.post.dto.PostDTO;
 import NotFound.next_campus.domain.post.model.*;
 import NotFound.next_campus.domain.post.repository.PostCategoryRepository;
@@ -49,7 +49,7 @@ public class PostServiceImpl implements PostService {
     private final PostCategoryRepository postCategoryRepository;
     private final PostImageRepository postImageRepository;
 
-    private final NotificationServiceImpl notificationService;
+    private final NotificationService notificationService;
 
     private static int PAGE_LIMIT = 10;
 
@@ -108,7 +108,7 @@ public class PostServiceImpl implements PostService {
 
         // 습득 게시물인 경우, 동일 카테고리의 분실 신고자 목록에 알림 전송
         if(PostType.FIND.equals(post.getType())) {
-            sendLostPostMatchNotification(post);
+            sendLostPostMatchNotification(post, member);
         }
 
         // 분실물(isPersonal=true)인 경우, 해당 학생에게 이메일 발송
@@ -449,14 +449,15 @@ public class PostServiceImpl implements PostService {
     }
 
     // 신규 습득 게시물 등록 시, 같은 카테고리의 분실 신고자들에게 알림 전송
-    private void sendLostPostMatchNotification(Post findPost) {
+    private void sendLostPostMatchNotification(Post findPost, Member writer) {
 
         // 등록된 습득 게시물의 카테고리 목록
         List<Long> categoryIds = postCategoryRepository.findCategoryIdsByPostId(findPost.getId());
 
         // 해당 카테고리 목록에 속하는 분실 신고자 목록(분실 신고이면서, 카테고리 목록이 하나라도 겹치면서, 미완료인 분실 신고건)
+        // 내가 올린 분실건은 제외
         List<Member> targetMembers = postRepository.findDistinctMembersByCategoryIdsAndType(
-                categoryIds, PostType.LOST, PostStatus.UNCOMPLETED);
+                categoryIds, PostType.LOST, PostStatus.UNCOMPLETED, writer);
 
         if (targetMembers.isEmpty()) {
             log.info("[알림 없음] 일치하는 분실 게시물이 없습니다.");
@@ -469,7 +470,7 @@ public class PostServiceImpl implements PostService {
 
         for (Member lostMember : targetMembers) {
 
-            notificationService.sendAndSaveNotification(CreateNotificationDTO.builder()
+            notificationService.sendAndSaveNotification(NotificationDTO.CreateRequest.builder()
                     .memberId(lostMember.getId())
                     .title(title)
                     .message(message)
