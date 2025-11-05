@@ -339,6 +339,19 @@ public class PostServiceImpl implements PostService {
         return getPostResponses(posts);
     }
 
+    @Override
+    public List<PostDTO.Response> getPostsByKeywordAndTags(String keyword, PostStatus status, PostType type, Long locationId, Long categoryId,
+                                                           Pageable pageable, int pageNo) {
+
+        pageable = PageRequest.of(pageNo, PAGE_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Post> postPage = postRepository.findPostsByKeywordAndTags(keyword, status, type, locationId, categoryId, pageable);
+
+        List<Post> posts = postPage.getContent();
+
+        return getPostResponses(posts);
+    }
+
     private List<PostDTO.Response> getPostResponses(List<Post> posts) {
 
         List<PostDTO.Response> responses = new ArrayList<>();

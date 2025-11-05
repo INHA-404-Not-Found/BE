@@ -42,4 +42,7 @@ public interface PostService {
 
     /* 내가 올린 게시물 목록 조회 */
     List<PostDTO.Response> getMyPosts(Pageable pageable, int pageNo, CustomUserDetails userDetails);
+
+    List<PostDTO.Response> getPostsByKeywordAndTags(String keyword, PostStatus status, PostType type, Long locationId, Long categoryId,
+                                                    Pageable pageable, int pageNo);
 }
