@@ -50,4 +50,20 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                                                          @Param("type") PostType type,
                                                          @Param("status") PostStatus status,
                                                          @Param("member") Member member);
+
+    @Query("SELECT DISTINCT p FROM Post p " +
+            "WHERE (p.title LIKE CONCAT('%', :keyword, '%') OR p.content LIKE CONCAT('%', :keyword, '%')) " +
+            "AND (:status IS NULL or p.status = :status) " +
+            "AND (:type IS NULL or p.type = :type) " +
+            "AND (:locationId IS NULL or p.location.id = :locationId) " +
+            "AND (:categoryId IS NULL or EXISTS ( " +
+            "            SELECT 1 FROM PostCategory pc " +
+            "            WHERE pc.post = p AND pc.category.id = :categoryId" +
+            "            ))")
+    Page<Post> findPostsByKeywordAndTags(@Param("keyword") String keyword,
+                                        @Param("status") PostStatus status,
+                                        @Param("type") PostType type,
+                                        @Param("locationId") Long locationId,
+                                        @Param("categoryId") Long categoryId,
+                                        Pageable pageable);
 }

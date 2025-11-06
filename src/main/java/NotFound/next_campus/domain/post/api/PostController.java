@@ -134,7 +134,7 @@ public class PostController {
         );
     }
 
-    @GetMapping("tags")
+    @GetMapping("/tags")
     public ResponseEntity<List<PostDTO.Response>> getPostsByTags(
             @RequestParam(value = "status", required = false) PostStatus status,
             @RequestParam(value = "type", required = false) PostType type,
@@ -164,7 +164,7 @@ public class PostController {
         );
     }
 
-    @GetMapping("my")
+    @GetMapping("/my")
     public ResponseEntity<List<PostDTO.Response>> getMyPosts(
             @PageableDefault(page = 1) Pageable pageable,
             @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo,
@@ -174,6 +174,24 @@ public class PostController {
 
         return ResponseEntity.ok().body(
                 postService.getMyPosts(pageable, pageNo, userDetails)
+        );
+    }
+
+    @GetMapping("/search/tags")
+    public ResponseEntity<List<PostDTO.Response>> getPostsByKeywordAndTags(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "status", required = false) PostStatus status,
+            @RequestParam(value = "type", required = false) PostType type,
+            @RequestParam(value = "location_id", required = false) Long locationId,
+            @RequestParam(value = "category_id", required = false) Long categoryId,
+            @PageableDefault(page = 1) Pageable pageable,
+            @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo
+    ) {
+        pageNo = (pageNo == 0) ? 0 : pageNo - 1;
+
+        return ResponseEntity.ok().body(
+                postService.getPostsByKeywordAndTags(keyword, status, type, locationId, categoryId,
+                        pageable, pageNo)
         );
     }
 }

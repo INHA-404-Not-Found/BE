@@ -24,6 +24,7 @@ public class NotificationDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Response {
+        private Long notificationId;
         private String title;
         private String message;
         private String link;
@@ -32,6 +33,7 @@ public class NotificationDTO {
         public static Response toResponse(Notification notification) {
 
             return Response.builder()
+                    .notificationId(notification.getId())
                     .title(notification.getTitle())
                     .message(notification.getMessage())
                     .link(notification.getLink())
