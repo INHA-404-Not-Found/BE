@@ -74,12 +74,12 @@ public class TokenService {
 
         // 새 토큰 발급 및 DB 갱신
         String newAccess = tokenProvider.createAccessToken(Long.valueOf(studentId), role);
-        String newRefresh = tokenProvider.createRefreshToken(Long.valueOf(studentId));
-        LocalDateTime newExpiry = LocalDateTime.ofInstant(Instant.now().plusMillis(tokenProvider.refreshTokenMillis), ZoneOffset.UTC);
-        memberAuthService.saveRefreshToken(Long.valueOf(studentId), newRefresh, newExpiry);
+        // String newRefresh = tokenProvider.createRefreshToken(Long.valueOf(studentId));
+        // LocalDateTime newExpiry = LocalDateTime.ofInstant(Instant.now().plusMillis(tokenProvider.refreshTokenMillis), ZoneOffset.UTC);
+        // memberAuthService.saveRefreshToken(Long.valueOf(studentId), newRefresh, newExpiry);
 
 
-        return new LoginTokens(newAccess, newRefresh);
+        return new LoginTokens(newAccess, stored);
     }
 
 
