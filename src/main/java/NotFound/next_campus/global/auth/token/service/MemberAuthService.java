@@ -46,7 +46,7 @@ public class MemberAuthService implements UserDetailsService {
         memberRepository.findByStudentId(studentId).ifPresent(m -> {
             m.setRefreshToken(refreshToken);
             m.setRefreshExpiry(expiry);
-            memberRepository.save(m);
+            // memberRepository.save(m);
         });
     }
 
@@ -67,7 +67,7 @@ public class MemberAuthService implements UserDetailsService {
         Member m = opt.get();
         m.setRefreshToken(null);
         m.setRefreshExpiry(null);
-        memberRepository.save(m);
+        //memberRepository.save(m);
     }
 
 
