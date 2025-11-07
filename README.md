@@ -251,34 +251,32 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
 
 - expo: 54.x.x
 
-### 환경 설정
-- IntelliJ에서 https://github.com/Kdoby/Chatting.git 레포지토리 복제 및 프로젝트로 열기
-- IntelliJ > File > Settings > Build, Execution, Deployment > Build Tools > Gradle > Build and run using, Run tests using IntelliJ IDEA로 변경 후, build.gradle reload
+### 환경 설정 및 실행
+- FE
+
+- BE
+  1️. 프로젝트 클론
+  git clone https://github.com/INHA-404-Not-Found/BE.git
+
+  2️. 의존성 설치
+  ./gradlew build
+
+  3️. 환경 변수 설정
+  application.properties 내 환경 변수는 시스템 환경 변수로 설정 (IntelliJ-Run Configuration)
+
+  -- 환경변수 --
+  DB_USERNAME=your_mysql_username
+  DB_PASSWORD=your_mysql_password
+  JWT_SECRET=your_jwt_secret_key
+  MAIL_PASSWORD=your_smtp_app_password
+
+  4️. 실행
+  ./gradlew bootRun
+
+  5️. 테스트
+  Postman으로 API를 테스트 
 
 
-      -- db --
-      1. h2.bat 파일 실행 -> 
-      2. jdbc:h2:~/Chatting 로 connect
-      3. sql/init.sql 파일 ctrl+c, ctrl+v
-  
-      -- frontend --
-      cd src/main/frontend
-      npm install http-proxy-middleware --save
-      npm install axios
-      npm install react-router-dom
-      npm i react-virtuoso
-      -- run (#port:3000)  --
-      npm start
-    
-      -- backend --
-      1. src/main/resources/application.properties 파일에 아래 항목 추가 
-          jwt.secret=[your_secret_key]
-          file.path=uploads/
-      2. http://localhost:3000/login -> SIGN-UP -> username=SYSTEM, PASSWORD=[your_password], nickname=system
-         -> 임의의 시스템 유저 생성
-      -- run (#port:8080) --
-      IntelliJ에서 src/main/java/ChattingApplication 실행
-      localhost:3000 새로고침
 
 <br>
 
