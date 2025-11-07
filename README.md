@@ -283,7 +283,10 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
 
   3️. 환경 변수 설정
   
-      -- resources/application.properties 환경변수 설정 --
+      -- resources/application.properties DB, 환경변수 등 설정 --
+      spring.application.name=next_campus
+  
+      # DB 관련
       spring.datasource.url=${YOUR_DB_URL}
       spring.datasource.username=${YOUR_DB_USERNAME}
       spring.datasource.password=${YOUR_DB_PASSWORD}
