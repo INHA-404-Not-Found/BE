@@ -268,7 +268,8 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
     npm start
   
   - 앱
-  1️. 프로젝트 클론
+    
+    1️. 프로젝트 클론
 
     git clone https://github.com/INHA-404-Not-Found/FE.git
   
