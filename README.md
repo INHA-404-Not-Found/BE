@@ -281,19 +281,32 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
   ./gradlew build
 
   3️. 환경 변수 설정
-  <br>
-  application.properties 내 환경 변수는 시스템 환경 변수로 설정 (IntelliJ-Run Configuration)
-
-  -- 환경변수 --
-  <br>
-  DB_USERNAME=your_mysql_username
-  <br>
-  DB_PASSWORD=your_mysql_password
-  <br>
-  JWT_SECRET=your_jwt_secret_key
-  <br>
-  MAIL_PASSWORD=your_smtp_app_password
-
+  
+      -- resources/application.properties 환경변수 설정 --
+      spring.datasource.url=${YOUR_DB_URL}
+      spring.datasource.username=${YOUR_DB_USERNAME}
+      spring.datasource.password=${YOUR_DB_PASSWORD}
+      spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+  
+      # JWT 인증 관련
+      jwt.secret=${YOUR_JWT_SECRET}
+      jwt.access-token-expiration-ms=${YOUR_JWT_ACCESS_EXPIRATION}
+      jwt.refresh-token-expiration-ms=${YOUR_JWT_REFRESH_EXPIRATION}
+  
+      # 이메일 알림 관련
+      spring.mail.host=smtp.gmail.com
+      spring.mail.port=587
+      spring.mail.username=${YOUR_MAIL_USERNAME}
+      spring.mail.password=${YOUR_MAIL_PASSWORD}
+      
+      spring.mail.properties.mail.smtp.auth=true
+      spring.mail.properties.mail.smtp.starttls.enable=true
+  
+      # DB 테이블 정보 가져오기
+      spring.jpa.hibernate.ddl-auto=update
+    
+      server.port=8080
+      server.ssl.enabled=false
   4️. 실행
   <br>
   ./gradlew bootRun
