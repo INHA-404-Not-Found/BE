@@ -253,6 +253,16 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
 
 ### 환경 설정 및 실행
 - FE
+  (앱)
+  1. 프로젝트 클론 및 폴더 이동
+  git clone https://github.com/INHA-404-Not-Found/FE.git
+  cd mobile
+
+  2. 의존성 설치
+  npm install
+
+  3. expo 실행
+  npm start
 
 - BE
   <br>
