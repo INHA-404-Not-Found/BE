@@ -74,7 +74,7 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
 ## 프로젝트 구조
 
 ### Frontend
-  ### - 웹
+  #### - 웹
     +---public
     |   +---fonts
     |   \---images
@@ -92,7 +92,7 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
       +---styles
       \---utils
 
-  ### - 앱
+  #### - 앱
   
     MOBILE
     ├── .expo
