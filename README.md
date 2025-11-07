@@ -243,9 +243,13 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
 
 - Java: JDK 21
 
-- React: 19.1.1
-
 - Mysql: 8.xx
+
+- React: 19.x.x
+
+- React Native: 0.81.x
+
+- expo: 54.x.x
 
 ### 환경 설정
 - IntelliJ에서 https://github.com/Kdoby/Chatting.git 레포지토리 복제 및 프로젝트로 열기
