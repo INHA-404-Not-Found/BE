@@ -104,70 +104,83 @@ Spring boot / React / FastAPI 를 기반으로 개발된
         └─pages
 ### Backend
 
-    Chatting/
-    ├─ domain/
-    │    ├─ai/
-    │        ├─api
-    │        ├─dto/
-    │            ├─request
-    │            └─response
-    │        └──service
-    │    ├─archive/
-    │        ├─api
-    │        ├─dto/
-    │            ├─request
-    │            └─response
-    │        ├─exception
-    │        ├─model
-    │        ├─repository
-    │        └─service
-    │    ├─chat/
-    │        ├─api
-    │        ├─dto/
-    │            ├─request
-    │            └─response
-    │        ├─exception
-    │        ├─handler
-    │        ├─model
-    │        ├─repository
-    │        └─service
-    │    ├─friendship/
-    │        ├─api
-    │        ├─dto/
-    │            ├─request
-    │            └─response
-    │        ├─exception
-    │        ├─model
-    │        ├─repository
-    │        └─service
-    │    └─member/
-    │        ├─api
-    │        ├─dto/
-    │            ├─request
-    │            └─response
-    │        ├─exception
-    │        ├─model
-    │        ├─repository
-    │        └─service
-    └─global
-        ├─auth/
-            └─token/
-                ├─api
-                ├─dto/
-                    ├─jwt/
-                        ├─request
-                        └─response
-                ├─exception
-                ├─filter
-                └─service
-        ├─base/
-            ├─dto
-            └─exception
-        ├─config/
-            ├─auth
-            └─web
-        └─util
-
+    +---domain
+    |   +---category
+    |   |   +---api
+    |   |   +---dto
+    |   |   |   +---request
+    |   |   |   \---response
+    |   |   +---model
+    |   |   +---repository
+    |   |   \---service
+    |   +---comment
+    |   |   +---api
+    |   |   +---dto
+    |   |   |   +---request
+    |   |   |   \---response
+    |   |   +---model
+    |   |   +---repository
+    |   |   \---service
+    |   +---location
+    |   |   +---api
+    |   |   +---dto
+    |   |   |   +---request
+    |   |   |   \---response
+    |   |   +---model
+    |   |   +---repository
+    |   |   \---service
+    |   +---member
+    |   |   +---model
+    |   |   \---repository
+    |   +---notification
+    |   |   +---api
+    |   |   +---dto
+    |   |   |   +---request
+    |   |   |   \---response
+    |   |   +---model
+    |   |   +---repository
+    |   |   \---service
+    |   +---post
+    |   |   +---api
+    |   |   +---dto
+    |   |   |   +---request
+    |   |   |   \---response
+    |   |   +---model
+    |   |   +---repository
+    |   |   \---service
+    |   \---receiver
+    |       +---api
+    |       +---dto
+    |       |   +---request
+    |       |   \---response
+    |       +---model
+    |       +---repository
+    |       \---service
+    \---global
+        +---auth
+        |   +---token
+        |   |   +---api
+        |   |   +---dto
+        |   |   |   +---request
+        |   |   |   \---response
+        |   |   +---exception
+        |   |   +---filter
+        |   |   \---service
+        |   \---user
+        +---config
+        |   +---auth
+        |   +---firebase
+        |   \---web
+        +---firebase
+        |   +---api
+        |   +---dto
+        |   |   \---request
+        |   +---model
+        |   +---repository
+        |   \---service
+        \---mail
+        +---api
+        \---service
 <br>
 
 ## 개발환경
