@@ -1,5 +1,5 @@
-<div align=center>
-    <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=230&section=header&text=%20Lost-INHA&fontSize=42&fontColor=F8FAFC" />
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=venom&color=0:004C97,100:007AC1&height=270&text=Lost%20INHA&fontSize=46&fontColor=D1D5DB&animation=fadeIn" />
 </div>
 
 
