@@ -255,25 +255,32 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
 - FE
 
 - BE
+  <br>
   1️. 프로젝트 클론
+  <br>
   git clone https://github.com/INHA-404-Not-Found/BE.git
 
   2️. 의존성 설치
+  <br>
   ./gradlew build
 
   3️. 환경 변수 설정
+  <br>
   application.properties 내 환경 변수는 시스템 환경 변수로 설정 (IntelliJ-Run Configuration)
 
   -- 환경변수 --
+  <br>
   DB_USERNAME=your_mysql_username
   DB_PASSWORD=your_mysql_password
   JWT_SECRET=your_jwt_secret_key
   MAIL_PASSWORD=your_smtp_app_password
 
   4️. 실행
+  <br>
   ./gradlew bootRun
 
   5️. 테스트
+  <br>
   Postman으로 API를 테스트 
 
 
