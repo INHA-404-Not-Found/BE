@@ -75,22 +75,22 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
 
 ### Frontend
   ## 웹
-  +---public
-  |   +---fonts
-  |   \---images
-  \---src
-    +---api
-    +---assets
-    +---components
-    +---fonts
-    +---pages
-    |   +---itemCategory
-    |   +---login
-    |   +---main
-    |   +---post
-    |   \---receiverRegist
-    +---styles
-    \---utils
+    +---public
+    |   +---fonts
+    |   \---images
+    \---src
+      +---api
+      +---assets
+      +---components
+      +---fonts
+      +---pages
+      |   +---itemCategory
+      |   +---login
+      |   +---main
+      |   +---post
+      |   \---receiverRegist
+      +---styles
+      \---utils
 
   ## 앱
   
@@ -228,7 +228,7 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
 <br>
 
 ## ERD
-<img width="1287" height="723" alt="Image" src="https://github-production-user-asset-6210df.s3.amazonaws.com/155566596/511129141-8c7da2ba-f8ba-448e-9e33-726b7c08276c.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20251107%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251107T051141Z&X-Amz-Expires=300&X-Amz-Signature=8601efa19c6ac1ba014a059db6ffd15d157876aa7afb49148a2edf51409e810a&X-Amz-SignedHeaders=host" />
+<img width="1287" height="723" alt="Image" src="https://github-production-user-asset-6210df.s3.amazonaws.com/155566596/511143247-f0f2f139-23d1-4526-b6e3-d5fe149515e5.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20251107%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251107T055938Z&X-Amz-Expires=300&X-Amz-Signature=73b40204f95edf52d2294d1cdbb19b01ab22d61d97f4d902f54eafce8aa06c82&X-Amz-SignedHeaders=host" />
 
 
 <br>
