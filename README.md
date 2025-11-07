@@ -256,19 +256,19 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
   <br>
   (앱)
   <br>
-  1. 프로젝트 클론 및 폴더 이동
+  1️. 프로젝트 클론
   <br>
   git clone https://github.com/INHA-404-Not-Found/FE.git
-  <br>
-  cd mobile
 
-  3. 의존성 설치
- <br>
+  2️. 의존성 설치
+  <br>
   npm install
 
-  5. expo 실행
+  3️. expo 실행
   <br>
   npm start
+
+
 
 - BE
   <br>
