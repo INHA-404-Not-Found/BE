@@ -271,8 +271,11 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
   -- 환경변수 --
   <br>
   DB_USERNAME=your_mysql_username
+  <br>
   DB_PASSWORD=your_mysql_password
+  <br>
   JWT_SECRET=your_jwt_secret_key
+  <br>
   MAIL_PASSWORD=your_smtp_app_password
 
   4️. 실행
