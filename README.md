@@ -1,5 +1,5 @@
 <div align=center>
-    <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=230&section=header&text=DAMA%20다마&fontSize=42&fontColor=F8FAFC" />
+    <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=230&section=header&text=DAMA%20Lost-INHA&fontSize=42&fontColor=F8FAFC" />
 </div>
 
 
@@ -54,13 +54,13 @@ Spring boot / React / FastAPI 를 기반으로 개발된
 ## 데모
 
 ### 로그인
-![Image](https://github.com/user-attachments/assets/e00b5077-c622-4b6c-bf7a-43a7bcfcb03e)
+
 ### 분실/습득 게시물 등록
-![Image](https://github.com/user-attachments/assets/9f557af0-8beb-4079-a867-637b4950cf5c)
+
 ### 습득 게시물 등록 시, 사용자 맞춤 알림
-![Image](https://github.com/user-attachments/assets/de3c8294-0d3b-4a4f-a17b-c464fc5ca3be)
+
 ### 수령인 관리
-![Image](https://github.com/user-attachments/assets/a9fd3fb1-0a00-48a9-a079-b231ac9df154)
+
 
 
 <br>
