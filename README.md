@@ -314,10 +314,10 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
   5️. 테스트
   <br>
   Postman으로 API를 테스트 
-<img width="1197" height="769" alt="KakaoTalk_20251107_151856585" src="https://github.com/user-attachments/assets/64da4290-b43c-4426-8984-4833774f5c90" />
-<img width="1204" height="720" alt="KakaoTalk_20251107_151856585_01" src="https://github.com/user-attachments/assets/2fa07143-f253-46fa-a2ea-f69ed8b61069" />
-<img width="1205" height="727" alt="KakaoTalk_20251107_151856585_02" src="https://github.com/user-attachments/assets/6aba0704-8b11-43af-806b-9e24b34b8049" />
-<img width="1210" height="50" alt="KakaoTalk_20251107_151856585_03" src="https://github.com/user-attachments/assets/409460ce-25e7-4af4-8ae8-56628978ab31" />
+  <img width="1000" height="500" alt="KakaoTalk_20251107_151856585" src="https://github.com/user-attachments/assets/64da4290-b43c-4426-8984-4833774f5c90" />
+  <img width="1000" height="500" alt="KakaoTalk_20251107_151856585_01" src="https://github.com/user-attachments/assets/2fa07143-f253-46fa-a2ea-f69ed8b61069" />
+  <img width="1000" height="500" alt="KakaoTalk_20251107_151856585_02" src="https://github.com/user-attachments/assets/6aba0704-8b11-43af-806b-9e24b34b8049" />
+  <img width="1000" height="50" alt="KakaoTalk_20251107_151856585_03" src="https://github.com/user-attachments/assets/409460ce-25e7-4af4-8ae8-56628978ab31" />
 
   
 
