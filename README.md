@@ -94,15 +94,66 @@ LOST INHA는 캠퍼스 내 분실물/습득물을 빠르고 체계적으로 관�
 
   ## 앱
   
-    frontend/
-    ├─public/
-    │    └─images
-    └──src/
-        ├─archive
-        ├─chatting
-        ├─component
-        ├─login
-        └─pages
+    MOBILE
+    ├── .expo
+    │   └── web
+    ├── .vscode
+    ├── android
+    ├── api
+    │   ├── api.js
+    │   ├── auth.js
+    │   ├── category.js
+    │   ├── location.js
+    │   ├── post.js
+    │   └── receiver.js
+    ├── assets
+    ├── components
+    │   ├── BottomBar.js
+    │   ├── CategoryList.js
+    │   ├── DefaultHeader.js
+    │   ├── LocationMap.js
+    │   ├── LocationViewBox.js
+    │   ├── MyPostListItem.js
+    │   ├── Notification.js
+    │   ├── PostListItem.js
+    │   ├── PostTypeSelector.js
+    │   ├── SearchHeader.js
+    │   ├── SelectCate.js
+    │   └── StatusLabel.js
+    ├── hooks
+    │   └── useAuth.js
+    ├── node_modules
+    ├── Redux
+    │   ├── slices
+    │   │   ├── categorySlice.js
+    │   │   ├── keywordSlice.js
+    │   │   ├── locationSlice.js
+    │   │   └── mySlice.js
+    │   └── store.js
+    ├── screens
+    │   ├── AddLostPostScreen.js
+    │   ├── AddPostScreen.js
+    │   ├── EditPostScreen.js
+    │   ├── Login.js
+    │   ├── MainScreen.js
+    │   ├── MyPostListScreen.js
+    │   ├── NotificationListScreen.js
+    │   ├── PostListScreen.js
+    │   ├── PostScreen.js
+    │   └── UserScreen.js
+    ├── utils
+    │   ├── DateFormat.js
+    │   └── imageSource.ts
+    ├── .gitignore
+    ├── App.js
+    ├── app.json
+    ├── babel.config.js
+    ├── package-lock.json
+    ├── package.json
+    ├── setupProxy.js
+    ├── tokenStorage.js
+    └──  TokenStore.js
+
 ### Backend
 
     +---domain
